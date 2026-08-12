@@ -1,6 +1,9 @@
 
+using GearUp.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
 using NSwag;
 using NSwag.Generation.Processors.Security;
+using System.Text.Json.Serialization;
 
 namespace GearUp.API
 {
@@ -11,8 +14,14 @@ namespace GearUp.API
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-
-            builder.Services.AddControllers();
+            builder.Services.AddControllers().AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
+            builder.Services.AddDbContext<StoreContext>(opt =>
+            {
+                opt.UseSqlServer(builder.Configuration.GetConnectionString("constr"));
+            });
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApiDocument(options =>
             {
@@ -46,8 +55,11 @@ namespace GearUp.API
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
+            app.UseDefaultFiles();
+            app.UseStaticFiles();
 
             app.MapControllers();
 
