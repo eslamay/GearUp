@@ -1,4 +1,5 @@
 
+using GearUp.Core.Interfaces;
 using GearUp.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using NSwag;
@@ -22,6 +23,11 @@ namespace GearUp.API
             {
                 opt.UseSqlServer(builder.Configuration.GetConnectionString("constr"));
             });
+
+            // Add services for repositories and unit of work
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApiDocument(options =>
             {
