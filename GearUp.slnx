@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="GearUp.API/GearUp.API.csproj" />
+  <Project Path="GearUp.Core/GearUp.Core.csproj" />
+  <Project Path="GearUp.Infrastructure/GearUp.Infrastructure.csproj" />
+</Solution>
