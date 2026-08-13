@@ -1,4 +1,5 @@
 
+using GearUp.API.Middleware;
 using GearUp.Core.Entities;
 using GearUp.Core.Interfaces;
 using GearUp.Infrastructure.Data;
@@ -60,6 +61,8 @@ namespace GearUp.API
                 // Serve the NSwag UI; point the UI to the JSON above
                 app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "GearUp API"));
             }
+
+            app.UseMiddleware<ExceptionMiddleware>();
 
             app.UseHttpsRedirection();
 
