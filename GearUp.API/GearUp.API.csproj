@@ -93,7 +93,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
     <Folder Include="DTOs\" />
     <Folder Include="wwwroot\images\products\" />
   </ItemGroup>
