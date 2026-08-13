@@ -30,6 +30,7 @@ namespace GearUp.API
             });
 
             // Add identity
+            builder.Services.AddAuthorization();
             builder.Services.AddIdentityApiEndpoints<AppUser>(options => {
                 options.SignIn.RequireConfirmedAccount = false;
                 options.SignIn.RequireConfirmedEmail = false;
@@ -65,16 +66,6 @@ namespace GearUp.API
                 options.Title = "GearUp API";
                 options.Version = "v1";
 
-                options.AddSecurity("Bearer", new NSwag.OpenApiSecurityScheme
-                {
-                    Description = "JWT Authorization header using the Bearer scheme.",
-                    Type = OpenApiSecuritySchemeType.Http,
-                    In = OpenApiSecurityApiKeyLocation.Header,
-                    Name = "Authorization",
-                    Scheme = "Bearer"
-                });
-
-                options.OperationProcessors.Add(new AspNetCoreOperationSecurityScopeProcessor("Bearer"));
             });
 
             var app = builder.Build();
@@ -91,6 +82,12 @@ namespace GearUp.API
 
             app.UseMiddleware<ExceptionMiddleware>();
 
+            app.UseCors(x => x
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials()
+                .WithOrigins("http://localhost:4200", "https://localhost:4200"));
+
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
@@ -100,7 +97,7 @@ namespace GearUp.API
             app.UseStaticFiles();
 
             app.MapControllers();
-            app.MapGroup("api").MapIdentityApi<AppUser>();
+           // app.MapGroup("api").MapIdentityApi<AppUser>();
 
             try
             {
