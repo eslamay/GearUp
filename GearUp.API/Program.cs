@@ -29,6 +29,19 @@ namespace GearUp.API
                 opt.UseSqlServer(builder.Configuration.GetConnectionString("constr"));
             });
 
+            // Add identity
+            builder.Services.AddIdentityApiEndpoints<AppUser>(options => {
+                options.SignIn.RequireConfirmedAccount = false;
+                options.SignIn.RequireConfirmedEmail = false;
+                options.SignIn.RequireConfirmedPhoneNumber = false;
+
+                // Allow login with either username or email
+                options.User.RequireUniqueEmail = true;
+                options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+            })
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<StoreContext>();
+
             // Add Redis
             builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
             {
@@ -87,14 +100,16 @@ namespace GearUp.API
             app.UseStaticFiles();
 
             app.MapControllers();
+            app.MapGroup("api").MapIdentityApi<AppUser>();
 
             try
             {
                 using var scope = app.Services.CreateScope();
                 var services = scope.ServiceProvider;
                 var context = services.GetRequiredService<StoreContext>();
+                var userManager = services.GetRequiredService<UserManager<AppUser>>();
                 await context.Database.MigrateAsync();
-                await StoreContextSeed.SeedAsync(context);
+                await StoreContextSeed.SeedAsync(context, userManager, builder.Configuration);
             }
             catch (Exception e)
             {
