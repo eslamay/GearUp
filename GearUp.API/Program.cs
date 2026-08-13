@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NSwag;
 using NSwag.Generation.Processors.Security;
+using StackExchange.Redis;
 using System.Text.Json.Serialization;
 
 namespace GearUp.API
@@ -25,6 +26,15 @@ namespace GearUp.API
             builder.Services.AddDbContext<StoreContext>(opt =>
             {
                 opt.UseSqlServer(builder.Configuration.GetConnectionString("constr"));
+            });
+
+            // Add Redis
+            builder.Services.AddSingleton<IConnectionMultiplexer>(config =>
+            {
+                var connectionString = builder.Configuration.GetConnectionString("Redis")
+                    ?? throw new Exception("Cannot get redis connection string");
+                var configuation = ConfigurationOptions.Parse(connectionString, true);
+                return ConnectionMultiplexer.Connect(configuation);
             });
 
             // Add services for repositories and unit of work
