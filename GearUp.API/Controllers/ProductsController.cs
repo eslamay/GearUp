@@ -1,4 +1,5 @@
-﻿using GearUp.Core.Entities;
+﻿using GearUp.API.RequestHelpers;
+using GearUp.Core.Entities;
 using GearUp.Core.Enum;
 using GearUp.Core.Interfaces;
 using GearUp.Core.Specifications;
@@ -23,6 +24,21 @@ namespace GearUp.API.Controllers
                 productParams.PageIndex, productParams.PageSize);
 
             return result;
+        }
+
+        [Cached(300)]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Product>> GetProduct(int id)
+        {
+            var spec = new ProductSpecification(id);
+            var product = await unit.Repository<Product>().GetEntityWithSpec(spec);
+
+            if (product == null) return NotFound();
+
+            // Only show approved products to public
+            if (product.Status != ProductStatus.Approved) return NotFound();
+
+            return product;
         }
     }
 }
