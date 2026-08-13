@@ -3,6 +3,7 @@ using GearUp.API.Middleware;
 using GearUp.Core.Entities;
 using GearUp.Core.Interfaces;
 using GearUp.Infrastructure.Data;
+using GearUp.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using NSwag;
@@ -36,6 +37,9 @@ namespace GearUp.API
                 var configuation = ConfigurationOptions.Parse(connectionString, true);
                 return ConnectionMultiplexer.Connect(configuation);
             });
+
+            // Add response caching service
+            builder.Services.AddSingleton<IResponseCacheService, ResponseCacheService>();
 
             // Add services for repositories and unit of work
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
