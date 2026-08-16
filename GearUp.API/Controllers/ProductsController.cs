@@ -81,6 +81,50 @@ namespace GearUp.API.Controllers
             }
         }
 
+        [InvalidateCache("api/products|")]
+        [Authorize(Roles = "Admin")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProduct(int id, [FromForm] UpdateProductDto productDto, IFormFile? file)
+        {
+            var product = await unit.Repository<Product>().GetByIdAsync(id);
+            if (product == null) return NotFound();
+
+            try
+            {
+                if (file != null)
+                {
+                    if (!string.IsNullOrEmpty(product.PictureUrl))
+                        fileUploadService.DeleteProductImageAsync(product.PictureUrl);
+
+                    product.PictureUrl = await fileUploadService.UploadProductImageAsync(file);
+                }
+                else if (!string.IsNullOrEmpty(productDto.PictureUrl))
+                {
+                    product.PictureUrl = productDto.PictureUrl.StartsWith("data:")
+                        ? await fileUploadService.UploadProductImageFromDataUrlAsync(productDto.PictureUrl)
+                        : productDto.PictureUrl;
+                }
+
+                product.Name = productDto.Name;
+                product.Description = productDto.Description;
+                product.Price = productDto.Price;
+                product.Type = productDto.Type;
+                product.Brand = productDto.Brand;
+                product.QuantityInStock = productDto.QuantityInStock;
+
+                unit.Repository<Product>().Update(product);
+
+                if (await unit.Complete())
+                    return NoContent();
+
+                return BadRequest("Problem updating the product");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         private async Task<string> ResolvePictureUrlAsync(IFormFile? file, string? pictureUrl)
         {
             if (file != null)
