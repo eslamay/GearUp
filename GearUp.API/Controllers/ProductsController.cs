@@ -144,6 +144,22 @@ namespace GearUp.API.Controllers
             return BadRequest("Problem deleting the product");
         }
 
+        [Cached(100000)]
+        [HttpGet("brands")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
+        {
+            var spec = new BrandListSpecification();
+            return Ok(await unit.Repository<Product>().ListAsync(spec));
+        }
+
+        [Cached(100000)]
+        [HttpGet("types")]
+        public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
+        {
+            var spec = new TypeListSpecification();
+            return Ok(await unit.Repository<Product>().ListAsync(spec));
+        }
+
         private async Task<string> ResolvePictureUrlAsync(IFormFile? file, string? pictureUrl)
         {
             if (file != null)
