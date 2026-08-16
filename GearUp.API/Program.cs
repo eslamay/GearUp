@@ -1,5 +1,6 @@
 
 using GearUp.API.Middleware;
+using GearUp.API.Services;
 using GearUp.Core.Entities;
 using GearUp.Core.Interfaces;
 using GearUp.Infrastructure.Data;
@@ -59,6 +60,10 @@ namespace GearUp.API
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // Add services 
+            builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApiDocument(options =>
             {
