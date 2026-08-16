@@ -1,8 +1,12 @@
-﻿using GearUp.API.RequestHelpers;
+﻿using GearUp.API.DTOs;
+using GearUp.API.Extensions;
+using GearUp.API.RequestHelpers;
+using GearUp.API.Services;
 using GearUp.Core.Entities;
 using GearUp.Core.Enum;
 using GearUp.Core.Interfaces;
 using GearUp.Core.Specifications;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,7 +14,7 @@ namespace GearUp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ProductsController(IUnitOfWork unit) : BaseApiController
+    public class ProductsController(IUnitOfWork unit, IFileUploadService fileUploadService) : BaseApiController
     {
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecParams productParams)
@@ -39,6 +43,55 @@ namespace GearUp.API.Controllers
             if (product.Status != ProductStatus.Approved) return NotFound();
 
             return product;
+        }
+
+        [InvalidateCache("api/products|")]
+        [Authorize(Roles = "Admin")]
+        [HttpPost]
+        public async Task<ActionResult<Product>> CreateProduct([FromForm] CreateProductDto productDto, IFormFile? file)
+        {
+            try
+            {
+                var pictureUrl = await ResolvePictureUrlAsync(file, productDto.PictureUrl);
+
+                var product = new Product
+                {
+                    Name = productDto.Name,
+                    Description = productDto.Description,
+                    Price = productDto.Price,
+                    PictureUrl = pictureUrl,
+                    Type = productDto.Type,
+                    Brand = productDto.Brand,
+                    QuantityInStock = productDto.QuantityInStock,
+                    Status = ProductStatus.Approved,
+                    VendorId = User.GetUserId(),
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                unit.Repository<Product>().Add(product);
+
+                if (await unit.Complete())
+                    return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
+
+                return BadRequest("Problem creating product");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        private async Task<string> ResolvePictureUrlAsync(IFormFile? file, string? pictureUrl)
+        {
+            if (file != null)
+                return await fileUploadService.UploadProductImageAsync(file);
+
+            if (!string.IsNullOrEmpty(pictureUrl))
+                return pictureUrl.StartsWith("data:")
+                    ? await fileUploadService.UploadProductImageFromDataUrlAsync(pictureUrl)
+                    : pictureUrl;
+
+            throw new ArgumentException("Product image is required");
         }
     }
 }
