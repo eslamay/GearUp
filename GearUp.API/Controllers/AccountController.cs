@@ -1,5 +1,6 @@
 ﻿using GearUp.API.DTOs;
 using GearUp.Core.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -65,6 +66,14 @@ namespace GearUp.API.Controllers
             }
 
             return Unauthorized("Invalid email/username or password");
+        }
+
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<ActionResult> Logout()
+        {
+            await signInManager.SignOutAsync();
+            return NoContent();
         }
     }
 }
