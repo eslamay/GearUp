@@ -1,9 +1,11 @@
 ﻿using GearUp.API.DTOs;
+using GearUp.API.Extensions;
 using GearUp.Core.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace GearUp.API.Controllers
 {
@@ -74,6 +76,33 @@ namespace GearUp.API.Controllers
         {
             await signInManager.SignOutAsync();
             return NoContent();
+        }
+
+        [HttpGet("user-info")]
+        public async Task<ActionResult> GetUserInfo()
+        {
+            if (User.Identity?.IsAuthenticated == false) return NoContent();
+
+            var user = await signInManager.UserManager.GetUserByEmailWithAddress(User);
+
+            return Ok(new
+            {
+                user.FirstName,
+                user.LastName,
+                user.Email,
+                user.UserName,
+                Address = user.Address?.ToDto(),
+                Roles = User.FindFirstValue(ClaimTypes.Role)
+            });
+        }
+
+        [HttpGet("auth-status")]
+        public ActionResult GetAuthState()
+        {
+            return Ok(new
+            {
+                IsAuthenticated = User.Identity?.IsAuthenticated ?? false
+            });
         }
     }
 }
