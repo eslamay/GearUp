@@ -1,4 +1,4 @@
-﻿namespace GearUp.Core.Entities.OrderAggregate
+﻿namespace GearUp.Core.Enum
 {
     public enum OrderStatus
     {

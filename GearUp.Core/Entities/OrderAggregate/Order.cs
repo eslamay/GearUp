@@ -1,4 +1,5 @@
-﻿using GearUp.Core.Interfaces;
+﻿using GearUp.Core.Enum;
+using GearUp.Core.Interfaces;
 
 namespace GearUp.Core.Entities.OrderAggregate
 {
