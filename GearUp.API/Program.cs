@@ -1,6 +1,7 @@
 
 using GearUp.API.Middleware;
 using GearUp.API.Services;
+using GearUp.API.SignalR;
 using GearUp.Core.Entities;
 using GearUp.Core.Interfaces;
 using GearUp.Infrastructure.Data;
@@ -103,7 +104,8 @@ namespace GearUp.API
             app.UseStaticFiles();
 
             app.MapControllers();
-           // app.MapGroup("api").MapIdentityApi<AppUser>();
+            app.MapHub<NotificationHub>("/hub/notifications");
+            // app.MapGroup("api").MapIdentityApi<AppUser>();
 
             try
             {
