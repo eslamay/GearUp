@@ -7,9 +7,10 @@ using GearUp.Core.Enum;
 using GearUp.Core.Interfaces;
 using GearUp.Core.Specifications;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
+using Stripe;
+
 
 namespace GearUp.API.Controllers
 {
@@ -30,17 +31,23 @@ namespace GearUp.API.Controllers
             if (cart == null) return BadRequest("Cart not found");
             if (cart.PaymentIntentId == null) return BadRequest("No payment intent for this order");
 
+            var paymentIntentService = new PaymentIntentService();
+            var paymentIntent = await paymentIntentService.GetAsync(cart.PaymentIntentId);
+
+            if (paymentIntent.Status != "succeeded")
+                return BadRequest("Payment has not been completed yet");
+
             var items = new List<OrderItem>();
             foreach (var item in cart.Items)
             {
-                var productItem = await unit.Repository<Product>().GetByIdAsync(item.ProductId);
+                var productItem = await unit.Repository<GearUp.Core.Entities.Product>().GetByIdAsync(item.ProductId);
                 if (productItem == null) return BadRequest("Problem with the order");
 
                 if (productItem.QuantityInStock < item.Quantity)
                     return BadRequest($"Not enough stock for {productItem.Name}");
 
                 productItem.QuantityInStock -= item.Quantity;
-                unit.Repository<Product>().Update(productItem);
+                unit.Repository<GearUp.Core.Entities.Product>().Update(productItem);
 
                 var itemOrdered = new ProductItemOrdered
                 {
@@ -79,6 +86,8 @@ namespace GearUp.API.Controllers
 
             if (await unit.Complete())
             {
+                await cartService.DeleteCartAsync(cart.Id);
+
                 var connectionId = NotificationHub.GetConnectionIdByEmail(order.BuyerEmail);
                 if (!string.IsNullOrEmpty(connectionId))
                 {
