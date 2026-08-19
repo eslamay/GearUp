@@ -259,5 +259,43 @@ namespace GearUp.API.Controllers
 
             return dashboard;
         }
+
+        [HttpGet("sales-over-time")]
+        public async Task<ActionResult<object>> GetSalesOverTime()
+        {
+            // Get all orders with PaymentReceived status
+            var orderSpecParams = new OrderSpecParams { PageSize = 1000, PageIndex = 1 };
+            var orderSpec = new OrderSpecification(orderSpecParams);
+            orderSpec.IsPagingEnabled = false;
+
+            var orders = await unit.Repository<Order>().ListAsync(orderSpec);
+            var paymentReceivedOrders = orders.Where(o => o.Status == OrderStatus.PaymentReceived).ToList();
+
+            // Generate sales data for the current year (January to December)
+            var salesData = new List<object>();
+            var currentYear = DateTime.Now.Year;
+
+            for (int month = 1; month <= 12; month++)
+            {
+                var monthDate = new DateTime(currentYear, month, 1);
+                var monthName = monthDate.ToString("MMMM");
+                var monthStart = new DateTime(currentYear, month, 1);
+                var monthEnd = monthStart.AddMonths(1).AddDays(-1);
+
+                var monthOrders = paymentReceivedOrders
+                    .Where(o => o.OrderDate >= monthStart && o.OrderDate <= monthEnd)
+                    .ToList();
+
+                var monthRevenue = monthOrders.Sum(o => o.GetTotal());
+
+                salesData.Add(new
+                {
+                    name = monthName,
+                    value = (int)monthRevenue
+                });
+            }
+
+            return Ok(salesData);
+        }
     }
 }
