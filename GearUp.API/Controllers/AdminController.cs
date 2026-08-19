@@ -1,5 +1,6 @@
 ﻿using GearUp.API.DTOs;
 using GearUp.API.Extensions;
+using GearUp.API.RequestHelpers;
 using GearUp.Core.Entities;
 using GearUp.Core.Entities.OrderAggregate;
 using GearUp.Core.Enum;
@@ -71,6 +72,66 @@ namespace GearUp.API.Controllers
 
             return await CreatePagedResult(unit.Repository<Product>(), spec,
                 specParams.PageIndex, specParams.PageSize);
+        }
+
+        [InvalidateCache("api/products|")]
+        [HttpPost("products/{id:int}/approve")]
+        public async Task<ActionResult<Product>> ApproveProduct(int id)
+        {
+            var product = await unit.Repository<Product>().GetByIdAsync(id);
+
+            if (product == null) return NotFound();
+
+            product.Status = ProductStatus.Approved;
+
+            unit.Repository<Product>().Update(product);
+
+            if (await unit.Complete())
+            {
+                return product;
+            }
+
+            return BadRequest("Problem approving product");
+        }
+
+        [InvalidateCache("api/products|")]
+        [HttpPost("products/{id:int}/reject")]
+        public async Task<ActionResult<Product>> RejectProduct(int id)
+        {
+            var product = await unit.Repository<Product>().GetByIdAsync(id);
+
+            if (product == null) return NotFound();
+
+            product.Status = ProductStatus.Rejected;
+
+            unit.Repository<Product>().Update(product);
+
+            if (await unit.Complete())
+            {
+                return product;
+            }
+
+            return BadRequest("Problem rejecting product");
+        }
+
+        [InvalidateCache("api/products|")]
+        [HttpPost("products/{id:int}/suspend")]
+        public async Task<ActionResult<Product>> SuspendProduct(int id)
+        {
+            var product = await unit.Repository<Product>().GetByIdAsync(id);
+
+            if (product == null) return NotFound();
+
+            product.Status = ProductStatus.Suspended;
+
+            unit.Repository<Product>().Update(product);
+
+            if (await unit.Complete())
+            {
+                return product;
+            }
+
+            return BadRequest("Problem suspending product");
         }
     }
 }
