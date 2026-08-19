@@ -147,6 +147,25 @@ namespace GearUp.API.Controllers
             return BadRequest("Problem deleting the product");
         }
 
+        [HttpGet("dashboard")]
+        public async Task<ActionResult<VendorDashboardDto>> GetDashboard()
+        {
+            var vendorId = User.GetUserId();
+            var spec = new VendorProductSpecification(vendorId!);
+            var products = await unit.Repository<Product>().ListAsync(spec);
+
+            var dashboard = new VendorDashboardDto
+            {
+                TotalProducts = products.Count,
+                PendingProducts = products.Count(p => p.Status == ProductStatus.Pending),
+                ApprovedProducts = products.Count(p => p.Status == ProductStatus.Approved),
+                RejectedProducts = products.Count(p => p.Status == ProductStatus.Rejected),
+                Products = products
+            };
+
+            return dashboard;
+        }
+
         private async Task<string> ResolvePictureUrlAsync(IFormFile? file, string? pictureUrl)
         {
             if (file != null)
