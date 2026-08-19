@@ -133,5 +133,58 @@ namespace GearUp.API.Controllers
 
             return BadRequest("Problem suspending product");
         }
+
+        [HttpGet("products/gear-up/count")]
+        public async Task<ActionResult<object>> GetGearUpProductsCount()
+        {
+            var gearUpVendor = await userManager.FindByNameAsync("GearUp");
+            if (gearUpVendor == null)
+            {
+                return Ok(new { count = 0 });
+            }
+
+            var spec = new VendorProductSpecification(gearUpVendor.Id);
+            var products = await unit.Repository<Product>().ListAsync(spec);
+            var count = products.Count;
+
+            return Ok(new { count });
+        }
+
+        [HttpGet("products/gear-up")]
+        public async Task<ActionResult<IReadOnlyList<Product>>> GetGearUpProducts([FromQuery] ProductSpecParams specParams)
+        {
+            var gearUpVendor = await userManager.FindByNameAsync("GearUp");
+            if (gearUpVendor == null)
+            {
+                return Ok(new List<Product>());
+            }
+
+            var spec = new VendorProductSpecification(gearUpVendor.Id, specParams);
+            return await CreatePagedResult(unit.Repository<Product>(), spec, specParams.PageIndex, specParams.PageSize);
+        }
+
+        [HttpGet("vendors/count")]
+        public async Task<ActionResult<object>> GetVendorsCount()
+        {
+            var totalVendors = (await userManager.GetUsersInRoleAsync("Vendor")).Count;
+            return Ok(new { totalVendors });
+        }
+
+        [HttpGet("vendors")]
+        public async Task<ActionResult<object>> GetVendors()
+        {
+            var vendors = await userManager.GetUsersInRoleAsync("Vendor");
+
+            var vendorList = vendors.Select(v => new
+            {
+                id = v.Id,
+                email = v.Email,
+                firstName = v.FirstName,
+                lastName = v.LastName,
+                userName = v.UserName
+            }).ToList();
+
+            return Ok(vendorList);
+        }
     }
 }
