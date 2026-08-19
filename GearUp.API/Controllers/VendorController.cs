@@ -122,6 +122,31 @@ namespace GearUp.API.Controllers
             }
         }
 
+        [HttpDelete("products/{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var vendorId = User.GetUserId();
+            var spec = new VendorProductSpecification(vendorId!, id);
+            var product = await unit.Repository<Product>().GetEntityWithSpec(spec);
+
+            if (product == null) return NotFound();
+
+            // Delete the associated image file
+            if (!string.IsNullOrEmpty(product.PictureUrl))
+            {
+                fileUploadService.DeleteProductImageAsync(product.PictureUrl);
+            }
+
+            unit.Repository<Product>().Remove(product);
+
+            if (await unit.Complete())
+            {
+                return NoContent();
+            }
+
+            return BadRequest("Problem deleting the product");
+        }
+
         private async Task<string> ResolvePictureUrlAsync(IFormFile? file, string? pictureUrl)
         {
             if (file != null)
