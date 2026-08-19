@@ -43,6 +43,15 @@ namespace GearUp.Infrastructure.Services
 
         public async Task<string> RefundPayment(string paymentIntentId)
         {
+
+            var paymentIntentService = new PaymentIntentService();
+
+            var paymentIntent =
+                await paymentIntentService.GetAsync(paymentIntentId);
+
+            if (paymentIntent.Status != "succeeded")
+                throw new Exception("Payment has not succeeded and cannot be refunded");
+
             var refundOptions = new RefundCreateOptions
             {
                 PaymentIntent = paymentIntentId

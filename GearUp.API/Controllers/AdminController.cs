@@ -2,6 +2,7 @@
 using GearUp.API.Extensions;
 using GearUp.Core.Entities;
 using GearUp.Core.Entities.OrderAggregate;
+using GearUp.Core.Enum;
 using GearUp.Core.Interfaces;
 using GearUp.Core.Specifications;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +36,32 @@ namespace GearUp.API.Controllers
             if (order == null) return BadRequest("No order with that Id");
 
             return order.ToDto();
+        }
+
+        [HttpPost("orders/refund/{id:int}")]
+        public async Task<ActionResult<OrderDto>> RefundOrder(int id)
+        {
+            var spec = new OrderSpecification(id);
+
+            var order = await unit.Repository<Order>().GetEntityWithSpec(spec);
+
+            if (order == null) return BadRequest("No order with that Id");
+
+            if (order.Status == OrderStatus.Pending)
+                return BadRequest("Payment not received for this order");
+
+            var result = await paymentService.RefundPayment(order.PaymentIntentId);
+
+            if (result == "succeeded")
+            {
+                order.Status = OrderStatus.Refunded;
+
+                await unit.Complete();
+
+                return order.ToDto();
+            }
+
+            return BadRequest("Problem refunding order");
         }
     }
 }
