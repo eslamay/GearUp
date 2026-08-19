@@ -137,7 +137,7 @@ namespace GearUp.API.Controllers
         [HttpGet("products/gear-up/count")]
         public async Task<ActionResult<object>> GetGearUpProductsCount()
         {
-            var gearUpVendor = await userManager.FindByNameAsync("GearUp");
+            var gearUpVendor = await userManager.FindByNameAsync("admin_gearup");
             if (gearUpVendor == null)
             {
                 return Ok(new { count = 0 });
@@ -153,7 +153,7 @@ namespace GearUp.API.Controllers
         [HttpGet("products/gear-up")]
         public async Task<ActionResult<IReadOnlyList<Product>>> GetGearUpProducts([FromQuery] ProductSpecParams specParams)
         {
-            var gearUpVendor = await userManager.FindByNameAsync("GearUp");
+            var gearUpVendor = await userManager.FindByNameAsync("admin_gearup");
             if (gearUpVendor == null)
             {
                 return Ok(new List<Product>());
@@ -185,6 +185,79 @@ namespace GearUp.API.Controllers
             }).ToList();
 
             return Ok(vendorList);
+        }
+
+        [HttpGet("dashboard")]
+        public async Task<ActionResult<AdminDashboardDto>> GetDashboard()
+        {
+            var specParams = new ProductSpecParams();
+            var productSpec = new ProductSpecification(specParams);
+            productSpec.IsPagingEnabled = false; 
+
+            var totalProducts = await unit.Repository<Product>().CountAsync(productSpec);
+
+            // Count pending products
+            specParams.Status = ProductStatus.Pending;
+            var pendingSpec = new ProductSpecification(specParams) { IsPagingEnabled = false };
+            var pendingCount = await unit.Repository<Product>()
+                .CountAsync(pendingSpec);
+
+            // Count Approved Products
+            specParams.Status = ProductStatus.Approved;
+            var approvedSpec = new ProductSpecification(specParams) { IsPagingEnabled = false };
+            var approvedCount = await unit.Repository<Product>()
+                .CountAsync(approvedSpec);
+
+            // Count Rejected
+            specParams.Status = ProductStatus.Rejected;
+            var rejectedSpec = new ProductSpecification(specParams) { IsPagingEnabled = false };
+            var rejectedCount = await unit.Repository<Product>()
+                .CountAsync(rejectedSpec);
+            // Count Suspended
+            specParams.Status = ProductStatus.Suspended;
+            var suspendedSpec = new ProductSpecification(specParams) { IsPagingEnabled = false };
+            var suspendedCount = await unit.Repository<Product>()
+                .CountAsync(suspendedSpec);
+
+            // Count vendors directly
+            var totalVendors = (await userManager.GetUsersInRoleAsync("Vendor")).Count;
+
+            // Count total orders
+            var orderSpecParams = new OrderSpecParams { PageSize = 1, PageIndex = 1 };
+            var orderSpec = new OrderSpecification(orderSpecParams);
+            orderSpec.IsPagingEnabled = false;
+            var totalOrders = await unit.Repository<Order>().CountAsync(orderSpec);
+
+            // Calculate revenue from only PaymentReceived orders
+            var orders = await unit.Repository<Order>().ListAsync(orderSpec);
+            var totalRevenue = orders
+                .Where(o => o.Status == OrderStatus.PaymentReceived)
+                .Sum(o => o.GetTotal());
+
+            // Count admin published products 
+            var gearUpVendor = await userManager.FindByNameAsync("admin_gearup");
+            int adminPublishedProducts = 0;
+            if (gearUpVendor != null)
+            {
+                var adminProductSpec = new VendorProductSpecification(gearUpVendor.Id);
+                adminProductSpec.IsPagingEnabled = false;
+                adminPublishedProducts = await unit.Repository<Product>().CountAsync(adminProductSpec);
+            }
+
+            var dashboard = new AdminDashboardDto
+            {
+                TotalOrders = totalOrders,
+                TotalProducts = totalProducts,
+                PendingProducts = pendingCount,
+                ApprovedProducts = approvedCount,
+                RejectedProducts = rejectedCount,
+                SuspendedProducts = suspendedCount,
+                VendorCount = totalVendors,
+                TotalRevenue = (int)totalRevenue,
+                AdminPublishedProducts = adminPublishedProducts
+            };
+
+            return dashboard;
         }
     }
 }
