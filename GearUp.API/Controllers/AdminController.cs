@@ -63,5 +63,14 @@ namespace GearUp.API.Controllers
 
             return BadRequest("Problem refunding order");
         }
+
+        [HttpGet("products")]
+        public async Task<ActionResult<IReadOnlyList<Product>>> GetAllProducts([FromQuery] ProductSpecParams specParams)
+        {
+            var spec = new ProductSpecification(specParams); 
+
+            return await CreatePagedResult(unit.Repository<Product>(), spec,
+                specParams.PageIndex, specParams.PageSize);
+        }
     }
 }
