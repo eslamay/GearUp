@@ -26,6 +26,18 @@ namespace GearUp.API.Controllers
                 productParams.PageIndex, productParams.PageSize);
         }
 
+        [HttpGet("products/{id}")]
+        public async Task<ActionResult<Product>> GetVendorProduct(int id)
+        {
+            var vendorId = User.GetUserId();
+            var spec = new VendorProductSpecification(vendorId!, id);
+            var product = await unit.Repository<Product>().GetEntityWithSpec(spec);
+
+            if (product == null) return NotFound();
+
+            return product;
+        }
+
         [HttpPost("products")]
         public async Task<ActionResult<Product>> CreateProduct([FromForm] CreateProductDto productDto, IFormFile? file)
         {
@@ -54,6 +66,55 @@ namespace GearUp.API.Controllers
                     return CreatedAtAction(nameof(GetVendorProducts), new { id = product.Id }, product);
                 
                 return BadRequest("Problem creating product");
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPut("products/{id}")]
+        public async Task<IActionResult> UpdateProduct(int id, [FromForm] CreateProductDto productDto, IFormFile? file)
+        {
+            try
+            {
+                var vendorId = User.GetUserId();
+                var spec = new VendorProductSpecification(vendorId!, id);
+                var product = await unit.Repository<Product>().GetEntityWithSpec(spec);
+
+                if (product == null) return NotFound();
+
+                if (file != null)
+                {
+                    if (!string.IsNullOrEmpty(product.PictureUrl))
+                        fileUploadService.DeleteProductImageAsync(product.PictureUrl);
+
+                    product.PictureUrl = await fileUploadService.UploadProductImageAsync(file);
+                }
+                else if (!string.IsNullOrEmpty(productDto.PictureUrl))
+                {
+                    product.PictureUrl = productDto.PictureUrl.StartsWith("data:")
+                        ? await fileUploadService.UploadProductImageFromDataUrlAsync(productDto.PictureUrl)
+                        : productDto.PictureUrl;
+                }
+
+                product.Name = productDto.Name;
+                product.Description = productDto.Description;
+                product.Price = productDto.Price;
+                product.Type = productDto.Type;
+                product.Brand = productDto.Brand;
+                product.QuantityInStock = productDto.QuantityInStock;
+
+                // Reset status to pending for all updates (including approved products)
+                product.Status = ProductStatus.Pending;
+
+                unit.Repository<Product>().Update(product);
+
+                if (await unit.Complete())
+                
+                    return NoContent();
+                
+                return BadRequest("Problem updating the product");
             }
             catch (ArgumentException ex)
             {
