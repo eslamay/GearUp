@@ -32,6 +32,11 @@ namespace GearUp.Infrastructure.Services
 
             var subtotal = CalculateSubtotal(cart);
 
+            if (cart.Coupon != null)
+            {
+                subtotal = await ApplyDiscountAsync(cart.Coupon, subtotal);
+            }
+
             var total = subtotal + shippingPrice;
 
             await CreateUpdatePaymentIntentAsync(cart, total);
@@ -90,7 +95,26 @@ namespace GearUp.Infrastructure.Services
             }
         }
 
-        // ApplyDiscountAsync
+        private async Task<long> ApplyDiscountAsync(AppCoupon appCoupon,
+        long amount)
+        {
+            var couponService = new Stripe.CouponService();
+
+            var coupon = await couponService.GetAsync(appCoupon.CouponId);
+
+            if (coupon.AmountOff.HasValue)
+            {
+                amount -= (long)coupon.AmountOff * 100;
+            }
+
+            if (coupon.PercentOff.HasValue)
+            {
+                var discount = amount * (coupon.PercentOff.Value / 100);
+                amount -= (long)discount;
+            }
+
+            return amount;
+        }
 
         private long CalculateSubtotal(ShoppingCart cart)
         {

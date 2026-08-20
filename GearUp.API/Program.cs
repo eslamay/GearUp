@@ -67,6 +67,7 @@ namespace GearUp.API
             builder.Services.AddScoped<ICartService, CartService>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
             builder.Services.AddSignalR();
+            builder.Services.AddScoped<ICouponService, CouponService>();
 
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApiDocument(options =>
