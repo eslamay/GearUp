@@ -60,7 +60,7 @@ namespace GearUp.API.Controllers
             {
                 return Unauthorized("Invalid email/username or password");
             }
-            var result = await signInManager.PasswordSignInAsync(user, loginDto.Password, false, false);
+            var result = await signInManager.PasswordSignInAsync(user, loginDto.Password, true, false);
 
             if (result.Succeeded)
             {

@@ -31,7 +31,7 @@ export class LoginComponent {
     this.accountService.login(this.form.getRawValue()).subscribe({
       next: () => {
         this.loading = false;
-        this.router.navigateByUrl('/shop');
+        this.router.navigateByUrl('/');
       },
       error: () => {
         this.loading = false;

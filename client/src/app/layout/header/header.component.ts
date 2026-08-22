@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AccountService } from '../../features/account/account.service';
 
 @Component({
   selector: 'app-header',
@@ -8,5 +9,12 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   styleUrl: './header.component.css'
 })
 export class HeaderComponent {
+accountService = inject(AccountService);
+  private router = inject(Router);
 
+  logout() {
+    this.accountService.logout().subscribe({
+      next: () => this.router.navigateByUrl('/account/login')
+    });
+  }
 }

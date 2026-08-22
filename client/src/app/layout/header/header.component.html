@@ -11,9 +11,21 @@
       <a routerLink="/shop" routerLinkActive="text-accent" class="hover:text-accent transition">
         SHOP
       </a>
-      <a routerLink="/account/login" routerLinkActive="text-accent" class="hover:text-accent transition">
-        LOGIN
-      </a>
+
+      @if (accountService.currentUser(); as user) {
+        <div class="flex items-center gap-4">
+          <span class="text-sm font-body font-normal text-gray-300">
+            Hi, {{ user.firstName ?? user.userName }}
+          </span>
+          <button (click)="logout()" class="hover:text-accent transition">
+            LOGOUT
+          </button>
+        </div>
+      } @else {
+        <a routerLink="/account/login" routerLinkActive="text-accent" class="hover:text-accent transition">
+          LOGIN
+        </a>
+      }
     </nav>
 
     <!-- Cart Icon -->

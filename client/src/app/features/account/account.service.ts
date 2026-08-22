@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { User } from '../../core/models/user';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment.development';
-import { map, Observable, tap } from 'rxjs';
+import { map, Observable, switchMap } from 'rxjs';
 import { RegisterDto } from '../../core/models/register';
 import { LoginDto } from '../../core/models/login';
 
@@ -17,9 +17,9 @@ export class AccountService {
   constructor(private http: HttpClient) {}
 
 
-  login(values: LoginDto): Observable<{ message: string }> {
+  login(values: LoginDto): Observable<User | null> {
     return this.http.post<{ message: string }>(`${this.baseUrl}/Account/login`, values).pipe(
-      tap(() => this.getUserInfo().subscribe())
+      switchMap(() => this.getUserInfo())
     );
   }
 
@@ -30,13 +30,19 @@ export class AccountService {
   getUserInfo(): Observable<User | null> {
     return this.http.get<User | null>(`${this.baseUrl}/Account/user-info`).pipe(
       map(user => user ?? null),
-      tap(user => this.currentUser.set(user))
+      switchMap(user => {
+        this.currentUser.set(user);
+        return [user];
+      })
     );
   }
 
   logout(): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/Account/logout`, {}).pipe(
-      tap(() => this.currentUser.set(null))
+      switchMap(() => {
+        this.currentUser.set(null);
+        return [undefined];
+      })
     );
   }
 }

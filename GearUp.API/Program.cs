@@ -69,6 +69,15 @@ namespace GearUp.API
             builder.Services.AddSignalR();
             builder.Services.AddScoped<ICouponService, CouponService>();
 
+            // Add authentication
+            builder.Services.ConfigureApplicationCookie(options =>
+            {
+                options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                options.SlidingExpiration = true;
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+            });
+
             // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
             builder.Services.AddOpenApiDocument(options =>
             {
