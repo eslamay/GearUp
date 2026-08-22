@@ -1,1 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+@theme {
+  --color-ink: #12181F;
+  --color-accent: #FF4715;
+}
+
+.container {
+  @apply mx-auto max-w-screen-xl px-4;
+}
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
