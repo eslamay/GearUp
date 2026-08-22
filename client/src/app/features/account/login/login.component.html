@@ -1,0 +1,52 @@
+<div class="min-h-[80vh] flex items-center justify-center bg-paper px-4">
+  <div class="bg-white shadow-md rounded-lg w-full max-w-sm p-8">
+
+    <div class="flex justify-center mb-6">
+      <img src="/logo.png" alt="GearUp" class="h-8" />
+    </div>
+
+    <h1 class="font-display font-bold text-2xl text-ink text-center mb-6 tracking-wide">
+      LOG IN
+    </h1>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+
+      <div>
+        <label class="block text-sm text-steel mb-1">Email</label>
+        <input
+          type="email"
+          formControlName="email"
+          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm text-steel mb-1">Password</label>
+        <input
+          type="password"
+          formControlName="password"
+          class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+        />
+      </div>
+
+      @if (errorMessage) {
+        <p class="text-danger text-sm">{{ errorMessage }}</p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="form.invalid || loading"
+        class="w-full bg-accent text-white font-semibold py-2 rounded hover:opacity-90 transition disabled:opacity-50"
+      >
+        {{ loading ? 'Logging in...' : 'Log In' }}
+      </button>
+
+    </form>
+
+    <p class="text-center text-sm text-steel mt-6">
+      Don't have an account?
+      <a routerLink="/account/register" class="text-accent font-medium hover:underline">Sign up</a>
+    </p>
+
+  </div>
+</div>
