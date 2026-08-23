@@ -1,0 +1,52 @@
+<div class="container py-10">
+
+  <h1 class="font-display font-bold text-3xl text-ink mb-6 tracking-wide">SHOP</h1>
+
+  @if (loading) {
+    <app-spinner />
+  } @else if (products.length === 0) {
+    <p class="text-steel text-center py-20">No products found.</p>
+  } @else {
+
+    <!-- Grid of products -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      @for (product of products; track product.id) {
+        <a [routerLink]="['/shop', product.id]"
+           class="bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden group">
+
+          <div class="aspect-square bg-paper overflow-hidden">
+            <img [src]="product.pictureUrl | imageUrl" [alt]="product.name"
+                 class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+          </div>
+
+          <div class="p-4">
+            <p class="text-xs text-steel uppercase tracking-wide">{{ product.brand }}</p>
+            <h3 class="font-medium text-ink truncate mt-1">{{ product.name }}</h3>
+            <p class="font-display font-bold text-accent text-lg mt-2">
+              {{ product.price | currency }}
+            </p>
+          </div>
+
+        </a>
+      }
+    </div>
+
+    <!-- Pagination -->
+    @if (totalPages > 1) {
+      <div class="flex justify-center gap-2 mt-10">
+        @for (page of pages; track page) {
+          <button
+            (click)="goToPage(page)"
+            [class.bg-accent]="page === productParams.pageIndex"
+            [class.text-white]="page === productParams.pageIndex"
+            class="w-9 h-9 rounded border border-gray-300 text-sm hover:bg-gray-100 transition"
+          >
+            {{ page }}
+          </button>
+        }
+      </div>
+    }
+
+  }
+
+</div>
