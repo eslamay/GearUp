@@ -56,6 +56,46 @@ namespace GearUp.API.Controllers
             return updatedCart == null ? BadRequest("Problem updating cart") : updatedCart;
         }
 
+        [HttpPut("items/{productId:int}")]
+        public async Task<ActionResult<ShoppingCart>> UpdateItemQuantity(string cartId, int productId, int quantity)
+        {
+            if (quantity < 1)
+                return BadRequest("Quantity must be at least 1. Use the delete endpoint to remove an item.");
+
+            var product = await unit.Repository<Product>().GetByIdAsync(productId);
+            if (product == null)
+                return NotFound("Product not found");
+
+            if (quantity > product.QuantityInStock)
+                return BadRequest($"Only {product.QuantityInStock} items available in stock");
+
+            var cart = await cartService.GetCartAsync(cartId);
+            if (cart == null) return NotFound("Cart not found");
+
+            var item = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+            if (item == null) return NotFound("Item not in cart");
+
+            item.Quantity = quantity;
+
+            var updatedCart = await cartService.SetCartAsync(cart);
+            return updatedCart == null ? BadRequest("Problem updating cart") : updatedCart;
+        }
+
+        [HttpDelete("items/{productId:int}")]
+        public async Task<ActionResult<ShoppingCart>> RemoveItemFromCart(string cartId, int productId)
+        {
+            var cart = await cartService.GetCartAsync(cartId);
+            if (cart == null) return NotFound("Cart not found");
+
+            var item = cart.Items.FirstOrDefault(i => i.ProductId == productId);
+            if (item == null) return NotFound("Item not in cart");
+
+            cart.Items.Remove(item);
+
+            var updatedCart = await cartService.SetCartAsync(cart);
+            return updatedCart == null ? BadRequest("Problem updating cart") : updatedCart;
+        }
+
         [HttpDelete]
         public async Task DeleteCart(string id)
         {
