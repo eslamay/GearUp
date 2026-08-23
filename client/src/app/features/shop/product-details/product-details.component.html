@@ -1,5 +1,4 @@
 <div class="container py-10">
-
   @if (loading) {
     <app-spinner />
   } @else if (notFound) {
@@ -8,23 +7,31 @@
       <a routerLink="/shop" class="text-accent hover:underline">Back to Shop</a>
     </div>
   } @else if (product) {
-
-    <a routerLink="/shop" class="text-sm text-steel hover:text-accent transition inline-block mb-6">
+    <a
+      routerLink="/shop"
+      class="text-sm text-steel hover:text-accent transition inline-block mb-6"
+    >
       ← Back to Shop
     </a>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
-
       <!-- photo -->
       <div class="bg-paper rounded-lg overflow-hidden aspect-square">
-        <img [src]="product.pictureUrl | imageUrl" [alt]="product.name"
-             class="w-full h-full object-cover" />
+        <img
+          [src]="product.pictureUrl | imageUrl"
+          [alt]="product.name"
+          class="w-full h-full object-cover"
+        />
       </div>
 
       <!-- details -->
       <div>
-        <p class="text-sm text-steel uppercase tracking-wide">{{ product.brand }}</p>
-        <h1 class="font-display font-bold text-3xl text-ink mt-1">{{ product.name }}</h1>
+        <p class="text-sm text-steel uppercase tracking-wide">
+          {{ product.brand }}
+        </p>
+        <h1 class="font-display font-bold text-3xl text-ink mt-1">
+          {{ product.name }}
+        </h1>
 
         <p class="font-display font-bold text-accent text-2xl mt-4">
           {{ product.price | currency }}
@@ -33,11 +40,15 @@
         <p class="text-steel mt-6 leading-relaxed">{{ product.description }}</p>
 
         <div class="mt-6 space-y-1 text-sm text-steel">
-          <p><span class="font-medium text-ink">Type:</span> {{ product.type }}</p>
+          <p>
+            <span class="font-medium text-ink">Type:</span> {{ product.type }}
+          </p>
           <p>
             <span class="font-medium text-ink">Availability:</span>
             @if (product.quantityInStock > 0) {
-              <span class="text-success">In Stock ({{ product.quantityInStock }} available)</span>
+              <span class="text-success"
+                >In Stock ({{ product.quantityInStock }} available)</span
+              >
             } @else {
               <span class="text-danger">Out of Stock</span>
             }
@@ -45,12 +56,21 @@
         </div>
 
         @if (product.quantityInStock > 0) {
-          <!-- quantity counter -->
           <div class="flex items-center gap-4 mt-8">
             <div class="flex items-center border border-gray-300 rounded">
-              <button (click)="decreaseQty()" class="px-3 py-2 hover:bg-gray-100 transition">−</button>
+              <button
+                (click)="decreaseQty()"
+                class="px-3 py-2 hover:bg-gray-100 transition"
+              >
+                −
+              </button>
               <span class="px-4 font-medium">{{ quantity }}</span>
-              <button (click)="increaseQty()" class="px-3 py-2 hover:bg-gray-100 transition">+</button>
+              <button
+                (click)="increaseQty()"
+                class="px-3 py-2 hover:bg-gray-100 transition"
+              >
+                +
+              </button>
             </div>
 
             <button
@@ -61,16 +81,32 @@
             </button>
           </div>
         } @else {
-          <button disabled
-            class="w-full bg-gray-300 text-gray-500 font-semibold py-3 rounded mt-8 cursor-not-allowed">
+          <button
+            disabled
+            class="w-full bg-gray-300 text-gray-500 font-semibold py-3 rounded mt-8 cursor-not-allowed"
+          >
             Out of Stock
           </button>
         }
 
+        <!-- delete -->
+        @if (canManageProduct) {
+          <button
+            (click)="openDeleteConfirm()"
+            [disabled]="deleting"
+            class="w-full text-danger border border-danger py-2 rounded hover:bg-red-50 transition disabled:opacity-50 mt-4"
+          >
+            {{ deleting ? "Deleting..." : "Delete Product" }}
+          </button>
+        }
       </div>
-
     </div>
-
   }
-
 </div>
+
+@if (showDeleteConfirm) {
+  <app-confirm-dialog
+    message="Are you sure you want to delete this product? This action cannot be undone."
+    (confirmed)="onDeleteConfirmed($event)"
+  />
+}

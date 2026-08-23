@@ -1,26 +1,32 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ImageUrlPipe } from '../../../shared/pipes/image-url.pipe';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CurrencyPipe } from '@angular/common';
 import { ProductService } from '../product.service';
 import { Product } from '../../../core/models/product';
+import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
+import { AccountService } from '../../account/account.service';
 
 @Component({
   selector: 'app-product-details',
-  imports: [CurrencyPipe, RouterLink, SpinnerComponent, ImageUrlPipe],
+  imports: [CurrencyPipe, RouterLink, SpinnerComponent, ImageUrlPipe, ConfirmDialogComponent],
   templateUrl: './product-details.component.html',
   styleUrl: './product-details.component.css'
 })
 export class ProductDetailsComponent implements OnInit {
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private productService = inject(ProductService);
+  private accountService = inject(AccountService);
 
   product: Product | null = null;
   loading = true;
   notFound = false;
 
   quantity = 1;
+  showDeleteConfirm = false;
+  deleting = false;
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -59,4 +65,31 @@ export class ProductDetailsComponent implements OnInit {
     // TODO Later
     console.log('Add to cart:', this.product?.id, 'Qty:', this.quantity);
   }
+
+  openDeleteConfirm() {
+    this.showDeleteConfirm = true;
+  }
+
+  onDeleteConfirmed(confirmed: boolean) {
+    this.showDeleteConfirm = false;
+
+    if (!confirmed || !this.product) return;
+
+    this.deleting = true;
+    this.productService.deleteProduct(this.product.id).subscribe({
+      next: () => {
+        this.router.navigateByUrl('/shop');
+      },
+      error: () => {
+        this.deleting = false;
+      }
+    });
+  }
+
+  get canManageProduct(): boolean {
+  const user = this.accountService.currentUser();
+  if (!user || !this.product) return false;
+
+  return user.roles === 'Admin' || this.product.vendor?.userName === user.userName;
+}
 }
