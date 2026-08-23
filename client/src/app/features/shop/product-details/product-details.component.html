@@ -75,11 +75,22 @@
 
             <button
               (click)="addToCart()"
-              class="flex-1 bg-accent text-white font-semibold py-3 rounded hover:opacity-90 transition"
+              [disabled]="addingToCart"
+              class="flex-1 bg-accent text-white font-semibold py-3 rounded hover:opacity-90 transition disabled:opacity-50"
             >
-              Add to Cart
+              @if (addingToCart) {
+                Adding...
+              } @else if (addedMessage) {
+                Added! ✓
+              } @else {
+                Add to Cart
+              }
             </button>
           </div>
+
+          @if (cartErrorMessage) {
+            <p class="text-danger text-sm mt-2">{{ cartErrorMessage }}</p>
+          }
         } @else {
           <button
             disabled

@@ -7,6 +7,7 @@ import { ProductService } from '../product.service';
 import { Product } from '../../../core/models/product';
 import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
 import { AccountService } from '../../account/account.service';
+import { CartService } from '../../cart/cart.service';
 
 @Component({
   selector: 'app-product-details',
@@ -19,6 +20,7 @@ export class ProductDetailsComponent implements OnInit {
   private router = inject(Router);
   private productService = inject(ProductService);
   private accountService = inject(AccountService);
+  private cartService = inject(CartService);
 
   product: Product | null = null;
   loading = true;
@@ -27,6 +29,10 @@ export class ProductDetailsComponent implements OnInit {
   quantity = 1;
   showDeleteConfirm = false;
   deleting = false;
+
+  addingToCart = false;
+  addedMessage = false;
+  cartErrorMessage: string | null = null;
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -62,8 +68,25 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   addToCart() {
-    // TODO Later
-    console.log('Add to cart:', this.product?.id, 'Qty:', this.quantity);
+    if (!this.product) return;
+
+    this.addingToCart = true;
+    this.cartErrorMessage = null;
+    this.addedMessage = false;
+
+    this.cartService.addItemToCart(this.product.id, this.quantity).subscribe({
+      next: () => {
+        this.addingToCart = false;
+        this.addedMessage = true;
+        setTimeout(() => (this.addedMessage = false), 2000);
+      },
+      error: (err) => {
+        this.addingToCart = false;
+        this.cartErrorMessage = typeof err.error === 'string'
+          ? err.error
+          : 'Could not add item to cart.';
+      }
+    });
   }
 
   openDeleteConfirm() {

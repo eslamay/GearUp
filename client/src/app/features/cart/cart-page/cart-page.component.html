@@ -1,0 +1,94 @@
+<div class="container py-10">
+
+  <h1 class="font-display font-bold text-3xl text-ink mb-6 tracking-wide">YOUR CART</h1>
+
+  @if (loading) {
+    <app-spinner />
+  } @else if (!cartService.cart() || cartService.cart()!.items.length === 0) {
+
+    <!-- Empty State -->
+    <div class="text-center py-20">
+      <p class="text-steel text-lg mb-4">Your cart is empty.</p>
+      <a routerLink="/shop" class="text-accent font-medium hover:underline">
+        Continue Shopping →
+      </a>
+    </div>
+
+  } @else {
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- عناصر السلة -->
+      <div class="lg:col-span-2 space-y-4">
+        @for (item of cartService.cart()!.items; track item.productId) {
+          <div class="flex items-center gap-4 bg-white rounded-lg shadow-sm p-4">
+
+            <img [src]="item.pictureUrl | imageUrl" [alt]="item.productName"
+                 class="w-20 h-20 object-cover rounded" />
+
+            <div class="flex-1 min-w-0">
+              <p class="text-xs text-steel uppercase">{{ item.brand }}</p>
+              <h3 class="font-medium text-ink truncate">{{ item.productName }}</h3>
+              <p class="font-display font-bold text-accent">{{ item.price | currency }}</p>
+            </div>
+
+            <div class="flex items-center border border-gray-300 rounded">
+              <button
+                (click)="decreaseQty(item)"
+                [disabled]="updatingProductId === item.productId"
+                class="px-3 py-1 hover:bg-gray-100 transition disabled:opacity-50">−</button>
+              <span class="px-4 font-medium">{{ item.quantity }}</span>
+              <button
+                (click)="increaseQty(item)"
+                [disabled]="updatingProductId === item.productId"
+                class="px-3 py-1 hover:bg-gray-100 transition disabled:opacity-50">+</button>
+            </div>
+
+            <button
+              (click)="removeItem(item.productId)"
+              [disabled]="updatingProductId === item.productId"
+              class="text-danger text-sm hover:underline disabled:opacity-50">
+              Remove
+            </button>
+
+          </div>
+        }
+
+        <button (click)="openClearConfirm()" class="text-sm text-steel hover:text-danger transition">
+          Clear Cart
+        </button>
+      </div>
+
+      <!-- ملخص الطلب -->
+      <div class="bg-white rounded-lg shadow-sm p-6 h-fit">
+        <h2 class="font-display font-bold text-lg text-ink mb-4 tracking-wide">ORDER SUMMARY</h2>
+
+        <div class="flex justify-between text-steel mb-2">
+          <span>Subtotal</span>
+          <span>{{ cartService.subtotal() | currency }}</span>
+        </div>
+
+        <div class="border-t border-gray-200 my-4"></div>
+
+        <div class="flex justify-between font-bold text-ink text-lg mb-6">
+          <span>Total</span>
+          <span>{{ cartService.subtotal() | currency }}</span>
+        </div>
+
+        <a routerLink="/checkout"
+           class="block text-center bg-accent text-white font-semibold py-3 rounded hover:opacity-90 transition">
+          Checkout
+        </a>
+      </div>
+
+    </div>
+
+  }
+
+</div>
+
+@if (showClearConfirm) {
+  <app-confirm-dialog
+    message="Are you sure you want to clear your entire cart?"
+    (confirmed)="onClearConfirmed($event)" />
+}
