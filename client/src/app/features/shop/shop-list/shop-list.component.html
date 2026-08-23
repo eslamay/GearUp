@@ -1,52 +1,137 @@
 <div class="container py-10">
+  <h1 class="font-display font-bold text-3xl text-ink mb-6 tracking-wide">
+    SHOP
+  </h1>
 
-  <h1 class="font-display font-bold text-3xl text-ink mb-6 tracking-wide">SHOP</h1>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <!-- Sidebar -->
+    <aside class="md:col-span-1 space-y-6">
+      <!-- search -->
+      <div>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange($event)"
+          placeholder="Search products..."
+          class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+        />
+      </div>
 
-  @if (loading) {
-    <app-spinner />
-  } @else if (products.length === 0) {
-    <p class="text-steel text-center py-20">No products found.</p>
-  } @else {
+      <!-- sort -->
+      <div>
+        <h3 class="font-display font-bold text-sm tracking-wide text-ink mb-2">
+          SORT BY
+        </h3>
+        <select
+          [(ngModel)]="productParams.sort"
+          (ngModelChange)="onSortChange($event)"
+          class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+        >
+          @for (option of sortOptions; track option.value) {
+            <option [value]="option.value">{{ option.label }}</option>
+          }
+        </select>
+      </div>
 
-    <!-- Grid of products -->
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-      @for (product of products; track product.id) {
-        <a [routerLink]="['/shop', product.id]"
-           class="bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden group">
+      <!-- brands -->
+      <div>
+        <h3 class="font-display font-bold text-sm tracking-wide text-ink mb-2">
+          BRANDS
+        </h3>
+        <div class="space-y-1 max-h-48 overflow-y-auto">
+          @for (brand of brands; track brand + resetToken) {
+            <label class="flex items-center gap-2 text-sm text-steel">
+              <input
+                type="checkbox"
+                [checked]="productParams.brands.includes(brand)"
+                (change)="onBrandToggle(brand, $any($event.target).checked)"
+                class="accent-accent"
+              />
+              {{ brand }}
+            </label>
+          }
+        </div>
+      </div>
 
-          <div class="aspect-square bg-paper overflow-hidden">
-            <img [src]="product.pictureUrl | imageUrl" [alt]="product.name"
-                 class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
+      <!-- types -->
+      <div>
+        <h3 class="font-display font-bold text-sm tracking-wide text-ink mb-2">
+          TYPES
+        </h3>
+        <div class="space-y-1 max-h-48 overflow-y-auto">
+          @for (type of types; track type + resetToken) {
+            <label class="flex items-center gap-2 text-sm text-steel">
+              <input
+                type="checkbox"
+                [checked]="productParams.types.includes(type)"
+                (change)="onTypeToggle(type, $any($event.target).checked)"
+                class="accent-accent"
+              />
+              {{ type }}
+            </label>
+          }
+        </div>
+      </div>
+
+      <button
+        (click)="resetFilters()"
+        class="text-sm text-accent hover:underline"
+      >
+        Reset Filters
+      </button>
+    </aside>
+
+    <!-- Products -->
+    <div class="md:col-span-3">
+      @if (loading) {
+        <app-spinner />
+      } @else if (products.length === 0) {
+        <p class="text-steel text-center py-20">No products found.</p>
+      } @else {
+        <div class="grid grid-cols-2 lg:grid-cols-3 gap-6">
+          @for (product of products; track product.id) {
+            <a
+              [routerLink]="['/shop', product.id]"
+              class="bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden group"
+            >
+              <div class="aspect-square bg-paper overflow-hidden">
+                <img
+                  [src]="product.pictureUrl | imageUrl"
+                  [alt]="product.name"
+                  class="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+                />
+              </div>
+
+              <div class="p-4">
+                <p class="text-xs text-steel uppercase tracking-wide">
+                  {{ product.brand }}
+                </p>
+                <h3 class="font-medium text-ink truncate mt-1">
+                  {{ product.name }}
+                </h3>
+                <p class="font-display font-bold text-accent text-lg mt-2">
+                  {{ product.price | currency }}
+                </p>
+              </div>
+            </a>
+          }
+        </div>
+
+        @if (totalPages > 1) {
+          <div class="flex justify-center gap-2 mt-10">
+            @for (page of pages; track page) {
+              <button
+                (click)="goToPage(page)"
+                [class.bg-accent]="page === productParams.pageIndex"
+                [class.text-white]="page === productParams.pageIndex"
+                class="w-9 h-9 rounded border border-gray-300 text-sm hover:bg-gray-100 transition"
+              >
+                {{ page }}
+              </button>
+            }
           </div>
-
-          <div class="p-4">
-            <p class="text-xs text-steel uppercase tracking-wide">{{ product.brand }}</p>
-            <h3 class="font-medium text-ink truncate mt-1">{{ product.name }}</h3>
-            <p class="font-display font-bold text-accent text-lg mt-2">
-              {{ product.price | currency }}
-            </p>
-          </div>
-
-        </a>
+        }
       }
     </div>
-
-    <!-- Pagination -->
-    @if (totalPages > 1) {
-      <div class="flex justify-center gap-2 mt-10">
-        @for (page of pages; track page) {
-          <button
-            (click)="goToPage(page)"
-            [class.bg-accent]="page === productParams.pageIndex"
-            [class.text-white]="page === productParams.pageIndex"
-            class="w-9 h-9 rounded border border-gray-300 text-sm hover:bg-gray-100 transition"
-          >
-            {{ page }}
-          </button>
-        }
-      </div>
-    }
-
-  }
-
+  </div>
 </div>
