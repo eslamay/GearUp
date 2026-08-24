@@ -6,6 +6,7 @@ import { CartService } from '../../cart/cart.service';
 import { CheckoutService } from '../checkout.service';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AccountService } from '../../account/account.service';
+import { DeliveryMethod } from '../../../core/models/delivery-method';
 
 @Component({
   selector: 'app-checkout-page',
@@ -36,6 +37,10 @@ export class CheckoutPageComponent implements OnInit {
     country: ['', Validators.required]
   });
   savingAddress = false;
+
+  // delivery methods
+  deliveryMethods: DeliveryMethod[] = [];
+  selectedDeliveryMethod: DeliveryMethod | null = null;
 
   ngOnInit() {
     this.cartService.getCart().subscribe({
@@ -75,5 +80,29 @@ export class CheckoutPageComponent implements OnInit {
         this.savingAddress = false;
       }
     });
+  }
+
+  // delivery methods 
+
+  selectDeliveryMethod(method: DeliveryMethod) {
+    this.selectedDeliveryMethod = method;
+  }
+
+  continueToReview() {
+    if (!this.selectedDeliveryMethod) return;
+    this.currentStep = 3;
+  }
+
+  get shippingPrice(): number {
+    return this.selectedDeliveryMethod?.price ?? 0;
+  }
+
+  get total(): number {
+    return this.cartService.subtotal() + this.shippingPrice;
+  }
+
+
+  backToStep(step: number) {
+    this.currentStep = step;
   }
 }

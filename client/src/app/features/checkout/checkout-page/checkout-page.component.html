@@ -58,7 +58,38 @@
           </form>
         }
 
+        <!-- Delivery -->
+        @if (currentStep === 2) {
+          <div class="bg-white rounded-lg shadow-sm p-6 space-y-3">
+            <h2 class="font-display font-bold text-lg text-ink tracking-wide mb-2">DELIVERY METHOD</h2>
 
+            @for (method of deliveryMethods; track method.id) {
+              <label class="flex items-center justify-between border border-gray-300 rounded p-4 cursor-pointer"
+                     [class.border-accent]="selectedDeliveryMethod?.id === method.id">
+                <div class="flex items-center gap-3">
+                  <input type="radio" name="delivery" [checked]="selectedDeliveryMethod?.id === method.id"
+                    (change)="selectDeliveryMethod(method)" class="accent-accent" />
+                  <div>
+                    <p class="font-medium text-ink">{{ method.shortName }}</p>
+                    <p class="text-sm text-steel">{{ method.deliveryTime }}</p>
+                  </div>
+                </div>
+                <span class="font-semibold text-ink">{{ method.price | currency }}</span>
+              </label>
+            }
+
+            <div class="flex gap-3 pt-2">
+              <button (click)="backToStep(1)"
+                class="border border-gray-300 px-6 py-2 rounded hover:bg-gray-100 transition">
+                Back
+              </button>
+              <button (click)="continueToReview()" [disabled]="!selectedDeliveryMethod"
+                class="bg-accent text-white font-semibold px-6 py-2 rounded hover:opacity-90 transition disabled:opacity-50">
+                Continue to Review
+              </button>
+            </div>
+          </div>
+        }
       </div>
 
         <!-- checkout summary section -->
