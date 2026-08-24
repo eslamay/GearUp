@@ -8,18 +8,24 @@ import { OrderDto } from '../../core/models/order';
 import { ShoppingCart } from '../../core/models/shopping-cart';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CheckoutService {
-
   private baseUrl = environment.baseUrl;
   private http = inject(HttpClient);
 
   getOrderById(id: number): Observable<OrderDto> {
-  return this.http.get<OrderDto>(`${this.baseUrl}/Orders/${id}`);
-}
+    return this.http.get<OrderDto>(`${this.baseUrl}/Orders/${id}`);
+  }
+
+  getOrders(): Observable<OrderDto[]> {
+    return this.http.get<OrderDto[]>(`${this.baseUrl}/Orders`);
+  }
+
   getDeliveryMethods(): Observable<DeliveryMethod[]> {
-    return this.http.get<DeliveryMethod[]>(`${this.baseUrl}/Orders/delivery-methods`);
+    return this.http.get<DeliveryMethod[]>(
+      `${this.baseUrl}/Orders/delivery-methods`,
+    );
   }
 
   createOrder(orderDto: CreateOrderDto): Observable<OrderDto> {
@@ -27,6 +33,9 @@ export class CheckoutService {
   }
 
   createOrUpdatePaymentIntent(cartId: string): Observable<ShoppingCart> {
-    return this.http.post<ShoppingCart>(`${this.baseUrl}/Payments/${cartId}`, {});
+    return this.http.post<ShoppingCart>(
+      `${this.baseUrl}/Payments/${cartId}`,
+      {},
+    );
   }
 }
