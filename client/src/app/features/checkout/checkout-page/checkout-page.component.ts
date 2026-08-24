@@ -150,8 +150,56 @@ export class CheckoutPageComponent implements OnInit {
   }
   
   async pay() {
-    console.log('Pay clicked - order creation logic comes next');
+  if (!this.stripe || !this.elements) return;
+
+  this.processingPayment = true;
+  this.paymentError = null;
+
+  const result = await this.stripe.confirmPayment({
+    elements: this.elements,
+    redirect: 'if_required'
+  });
+
+  if (result.error) {
+    this.processingPayment = false;
+    this.paymentError = result.error.message ?? 'Payment failed. Please try again.';
+    return;
   }
+
+  // payment succeeded
+  this.createOrderAfterPayment(result.paymentIntent);
+}
+
+private createOrderAfterPayment(paymentIntent: any) {
+  const card = paymentIntent?.payment_method?.card;
+
+  const orderDto = {
+    cartId: this.cartService.cart()!.id,
+    deliveryMethodId: this.selectedDeliveryMethod!.id,
+    shippingAddress: this.addressForm.getRawValue(),
+    paymentSummary: {
+      last4: card ? Number(card.last4) : 0,
+      brand: card?.brand ?? 'card',
+      expMonth: card?.exp_month ?? 0,
+      expYear: card?.exp_year ?? 0
+    },
+    discount: 0
+  };
+
+  this.checkoutService.createOrder(orderDto).subscribe({
+    next: (order) => {
+      this.processingPayment = false;
+      localStorage.removeItem('cart_id');
+      this.router.navigateByUrl(`/order-success/${order.id}`);
+    },
+    error: (err) => {
+      this.processingPayment = false;
+      this.paymentError = typeof err.error === 'string'
+        ? err.error
+        : 'Payment succeeded but order creation failed. Please contact support.';
+    }
+  });
+}
 
   backToStep(step: number) {
     this.currentStep = step;

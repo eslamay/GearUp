@@ -7,6 +7,7 @@ import { ProductFormComponent } from './features/shop/product-form/product-form.
 import { authGuard } from './core/guards/auth.guard';
 import { CartPageComponent } from './features/cart/cart-page/cart-page.component';
 import { CheckoutPageComponent } from './features/checkout/checkout-page/checkout-page.component';
+import { OrderSuccessComponent } from './features/checkout/order-success/order-success.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/shop', pathMatch: 'full' },
@@ -26,6 +27,7 @@ export const routes: Routes = [
   },
   { path: 'cart', component: CartPageComponent },
   { path: 'checkout', component: CheckoutPageComponent, canActivate: [authGuard] },
+  { path: 'order-success/:id', component: OrderSuccessComponent, canActivate: [authGuard] },
   { path: 'account/login', component: LoginComponent },
   { path: 'account/register', component: RegisterComponent },
 ];

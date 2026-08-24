@@ -15,6 +15,9 @@ export class CheckoutService {
   private baseUrl = environment.baseUrl;
   private http = inject(HttpClient);
 
+  getOrderById(id: number): Observable<OrderDto> {
+  return this.http.get<OrderDto>(`${this.baseUrl}/Orders/${id}`);
+}
   getDeliveryMethods(): Observable<DeliveryMethod[]> {
     return this.http.get<DeliveryMethod[]>(`${this.baseUrl}/Orders/delivery-methods`);
   }

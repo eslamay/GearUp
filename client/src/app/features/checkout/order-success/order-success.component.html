@@ -1,0 +1,36 @@
+<div class="container py-16 text-center">
+
+  @if (loading) {
+    <app-spinner />
+  } @else if (order) {
+
+    <div class="max-w-md mx-auto">
+      <div class="text-success text-6xl mb-4">✓</div>
+
+      <h1 class="font-display font-bold text-3xl text-ink tracking-wide">ORDER CONFIRMED</h1>
+      <p class="text-steel mt-2">Thank you! Your order has been placed successfully.</p>
+
+      <div class="bg-white rounded-lg shadow-sm p-6 mt-8 text-left">
+        <div class="flex justify-between text-sm text-steel mb-2">
+          <span>Order Number</span>
+          <span class="font-medium text-ink">#{{ order.id }}</span>
+        </div>
+        <div class="flex justify-between text-sm text-steel mb-2">
+          <span>Total</span>
+          <span class="font-medium text-ink">{{ order.total | currency }}</span>
+        </div>
+        <div class="flex justify-between text-sm text-steel">
+          <span>Status</span>
+          <span class="font-medium text-success">{{ order.status }}</span>
+        </div>
+      </div>
+
+      <a routerLink="/shop"
+         class="inline-block mt-8 bg-accent text-white font-semibold px-8 py-3 rounded hover:opacity-90 transition">
+        Continue Shopping
+      </a>
+    </div>
+
+  }
+
+</div>
