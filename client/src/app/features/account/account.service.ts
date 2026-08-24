@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment.development';
 import { map, Observable, switchMap } from 'rxjs';
 import { RegisterDto } from '../../core/models/register';
 import { LoginDto } from '../../core/models/login';
+import { ShippingAddress } from '../../core/models/shipping-address';
 
 @Injectable({
   providedIn: 'root'
@@ -45,4 +46,8 @@ export class AccountService {
       })
     );
   }
+
+  updateAddress(address: ShippingAddress): Observable<ShippingAddress> {
+  return this.http.post<ShippingAddress>(`${this.baseUrl}/Account/address`, address);
+}
 }
