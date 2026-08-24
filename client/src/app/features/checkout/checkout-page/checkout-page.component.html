@@ -5,12 +5,60 @@
   } @else {
 
     <h1 class="font-display font-bold text-3xl text-ink mb-6 tracking-wide">CHECKOUT</h1>
+     <!-- checkout steps -->
+    <div class="flex items-center gap-2 mb-8 text-sm font-medium">
+      <span [class.text-accent]="currentStep === 1" [class.text-steel]="currentStep !== 1">1. Address</span>
+      <span class="text-gray-300">→</span>
+      <span [class.text-accent]="currentStep === 2" [class.text-steel]="currentStep !== 2">2. Delivery</span>
+      <span class="text-gray-300">→</span>
+      <span [class.text-accent]="currentStep === 3" [class.text-steel]="currentStep !== 3">3. Review</span>
+      <span class="text-gray-300">→</span>
+      <span [class.text-accent]="currentStep === 4" [class.text-steel]="currentStep !== 4">4. Payment</span>
+    </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-      <!-- خطوات الـ Checkout -->
+      <!-- Checkout -->
       <div class="lg:col-span-2 space-y-6">
-        <p class="text-steel">Checkout steps will go here...</p>
+        
+        <!-- Address -->
+        @if (currentStep === 1) {
+          <form [formGroup]="addressForm" (ngSubmit)="saveAddressAndContinue()"
+                class="bg-white rounded-lg shadow-sm p-6 space-y-4">
+
+            <h2 class="font-display font-bold text-lg text-ink tracking-wide">SHIPPING ADDRESS</h2>
+
+            <input formControlName="name" placeholder="Full Name"
+              class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
+
+            <input formControlName="line1" placeholder="Address Line 1"
+              class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
+
+            <input formControlName="line2" placeholder="Address Line 2 (optional)"
+              class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
+
+            <div class="grid grid-cols-2 gap-3">
+              <input formControlName="city" placeholder="City"
+                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
+              <input formControlName="state" placeholder="State"
+                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <input formControlName="postalCode" placeholder="Postal Code"
+                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
+              <input formControlName="country" placeholder="Country"
+                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
+            </div>
+
+            <button type="submit" [disabled]="addressForm.invalid || savingAddress"
+              class="bg-accent text-white font-semibold px-6 py-2 rounded hover:opacity-90 transition disabled:opacity-50">
+              {{ savingAddress ? 'Saving...' : 'Continue to Delivery' }}
+            </button>
+          </form>
+        }
+
+
       </div>
 
         <!-- checkout summary section -->
