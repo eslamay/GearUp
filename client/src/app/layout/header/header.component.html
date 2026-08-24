@@ -18,6 +18,24 @@
       </a>
 
       @if (accountService.currentUser(); as user) {
+        @if (user.roles === "Vendor" || user.roles === "Admin") {
+          <a
+            routerLink="/products/new"
+            routerLinkActive="text-accent"
+            class="hover:text-accent transition"
+          >
+            ADD PRODUCT
+          </a>
+        }
+
+        <a
+          routerLink="/orders"
+          routerLinkActive="text-accent"
+          class="hover:text-accent transition"
+        >
+          MY ORDERS
+        </a>
+
         <div class="flex items-center gap-4">
           <span class="text-sm font-body font-normal text-gray-300">
             Hi, {{ user.firstName ?? user.userName }}

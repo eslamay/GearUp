@@ -9,6 +9,7 @@ import { CartPageComponent } from './features/cart/cart-page/cart-page.component
 import { CheckoutPageComponent } from './features/checkout/checkout-page/checkout-page.component';
 import { OrderSuccessComponent } from './features/checkout/order-success/order-success.component';
 import { OrderHistoryComponent } from './features/orders/order-history/order-history.component';
+import { OrderDetailsComponent } from './features/orders/order-details/order-details.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/shop', pathMatch: 'full' },
@@ -30,6 +31,7 @@ export const routes: Routes = [
   { path: 'checkout', component: CheckoutPageComponent, canActivate: [authGuard] },
   { path: 'order-success/:id', component: OrderSuccessComponent, canActivate: [authGuard] },
   { path: 'orders', component: OrderHistoryComponent, canActivate: [authGuard] },
+  { path: 'orders/:id', component: OrderDetailsComponent, canActivate: [authGuard] },
   { path: 'account/login', component: LoginComponent },
   { path: 'account/register', component: RegisterComponent },
 ];
