@@ -1,59 +1,101 @@
 <div class="container py-10">
-
   @if (loading) {
     <app-spinner />
   } @else {
-
-    <h1 class="font-display font-bold text-3xl text-ink mb-6 tracking-wide">CHECKOUT</h1>
-     <!-- checkout steps -->
+    <h1 class="font-display font-bold text-3xl text-ink mb-6 tracking-wide">
+      CHECKOUT
+    </h1>
+    <!-- checkout steps -->
     <div class="flex items-center gap-2 mb-8 text-sm font-medium">
-      <span [class.text-accent]="currentStep === 1" [class.text-steel]="currentStep !== 1">1. Address</span>
+      <span
+        [class.text-accent]="currentStep === 1"
+        [class.text-steel]="currentStep !== 1"
+        >1. Address</span
+      >
       <span class="text-gray-300">→</span>
-      <span [class.text-accent]="currentStep === 2" [class.text-steel]="currentStep !== 2">2. Delivery</span>
+      <span
+        [class.text-accent]="currentStep === 2"
+        [class.text-steel]="currentStep !== 2"
+        >2. Delivery</span
+      >
       <span class="text-gray-300">→</span>
-      <span [class.text-accent]="currentStep === 3" [class.text-steel]="currentStep !== 3">3. Review</span>
+      <span
+        [class.text-accent]="currentStep === 3"
+        [class.text-steel]="currentStep !== 3"
+        >3. Review</span
+      >
       <span class="text-gray-300">→</span>
-      <span [class.text-accent]="currentStep === 4" [class.text-steel]="currentStep !== 4">4. Payment</span>
+      <span
+        [class.text-accent]="currentStep === 4"
+        [class.text-steel]="currentStep !== 4"
+        >4. Payment</span
+      >
     </div>
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
       <!-- Checkout -->
       <div class="lg:col-span-2 space-y-6">
-        
         <!-- Address -->
         @if (currentStep === 1) {
-          <form [formGroup]="addressForm" (ngSubmit)="saveAddressAndContinue()"
-                class="bg-white rounded-lg shadow-sm p-6 space-y-4">
+          <form
+            [formGroup]="addressForm"
+            (ngSubmit)="saveAddressAndContinue()"
+            class="bg-white rounded-lg shadow-sm p-6 space-y-4"
+          >
+            <h2 class="font-display font-bold text-lg text-ink tracking-wide">
+              SHIPPING ADDRESS
+            </h2>
 
-            <h2 class="font-display font-bold text-lg text-ink tracking-wide">SHIPPING ADDRESS</h2>
+            <input
+              formControlName="name"
+              placeholder="Full Name"
+              class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+            />
 
-            <input formControlName="name" placeholder="Full Name"
-              class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
+            <input
+              formControlName="line1"
+              placeholder="Address Line 1"
+              class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+            />
 
-            <input formControlName="line1" placeholder="Address Line 1"
-              class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
-
-            <input formControlName="line2" placeholder="Address Line 2 (optional)"
-              class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
+            <input
+              formControlName="line2"
+              placeholder="Address Line 2 (optional)"
+              class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+            />
 
             <div class="grid grid-cols-2 gap-3">
-              <input formControlName="city" placeholder="City"
-                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
-              <input formControlName="state" placeholder="State"
-                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
+              <input
+                formControlName="city"
+                placeholder="City"
+                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+              <input
+                formControlName="state"
+                placeholder="State"
+                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+              />
             </div>
 
             <div class="grid grid-cols-2 gap-3">
-              <input formControlName="postalCode" placeholder="Postal Code"
-                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
-              <input formControlName="country" placeholder="Country"
-                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
+              <input
+                formControlName="postalCode"
+                placeholder="Postal Code"
+                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+              />
+              <input
+                formControlName="country"
+                placeholder="Country"
+                class="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent"
+              />
             </div>
 
-            <button type="submit" [disabled]="addressForm.invalid || savingAddress"
-              class="bg-accent text-white font-semibold px-6 py-2 rounded hover:opacity-90 transition disabled:opacity-50">
-              {{ savingAddress ? 'Saving...' : 'Continue to Delivery' }}
+            <button
+              type="submit"
+              [disabled]="addressForm.invalid || savingAddress"
+              class="bg-accent text-white font-semibold px-6 py-2 rounded hover:opacity-90 transition disabled:opacity-50"
+            >
+              {{ savingAddress ? "Saving..." : "Continue to Delivery" }}
             </button>
           </form>
         }
@@ -61,40 +103,124 @@
         <!-- Delivery -->
         @if (currentStep === 2) {
           <div class="bg-white rounded-lg shadow-sm p-6 space-y-3">
-            <h2 class="font-display font-bold text-lg text-ink tracking-wide mb-2">DELIVERY METHOD</h2>
+            <h2
+              class="font-display font-bold text-lg text-ink tracking-wide mb-2"
+            >
+              DELIVERY METHOD
+            </h2>
 
             @for (method of deliveryMethods; track method.id) {
-              <label class="flex items-center justify-between border border-gray-300 rounded p-4 cursor-pointer"
-                     [class.border-accent]="selectedDeliveryMethod?.id === method.id">
+              <label
+                class="flex items-center justify-between border border-gray-300 rounded p-4 cursor-pointer"
+                [class.border-accent]="selectedDeliveryMethod?.id === method.id"
+              >
                 <div class="flex items-center gap-3">
-                  <input type="radio" name="delivery" [checked]="selectedDeliveryMethod?.id === method.id"
-                    (change)="selectDeliveryMethod(method)" class="accent-accent" />
+                  <input
+                    type="radio"
+                    name="delivery"
+                    [checked]="selectedDeliveryMethod?.id === method.id"
+                    (change)="selectDeliveryMethod(method)"
+                    class="accent-accent"
+                  />
                   <div>
                     <p class="font-medium text-ink">{{ method.shortName }}</p>
                     <p class="text-sm text-steel">{{ method.deliveryTime }}</p>
                   </div>
                 </div>
-                <span class="font-semibold text-ink">{{ method.price | currency }}</span>
+                <span class="font-semibold text-ink">{{
+                  method.price | currency
+                }}</span>
               </label>
             }
 
             <div class="flex gap-3 pt-2">
-              <button (click)="backToStep(1)"
-                class="border border-gray-300 px-6 py-2 rounded hover:bg-gray-100 transition">
+              <button
+                (click)="backToStep(1)"
+                class="border border-gray-300 px-6 py-2 rounded hover:bg-gray-100 transition"
+              >
                 Back
               </button>
-              <button (click)="continueToReview()" [disabled]="!selectedDeliveryMethod"
-                class="bg-accent text-white font-semibold px-6 py-2 rounded hover:opacity-90 transition disabled:opacity-50">
+              <button
+                (click)="continueToReview()"
+                [disabled]="!selectedDeliveryMethod"
+                class="bg-accent text-white font-semibold px-6 py-2 rounded hover:opacity-90 transition disabled:opacity-50"
+              >
                 Continue to Review
               </button>
             </div>
           </div>
         }
+        <!-- Review Order -->
+        @if (currentStep === 3) {
+          <div class="bg-white rounded-lg shadow-sm p-6 space-y-4">
+            <h2 class="font-display font-bold text-lg text-ink tracking-wide">
+              REVIEW YOUR ORDER
+            </h2>
+
+            <div>
+              <h3 class="text-sm font-semibold text-steel mb-1">
+                Shipping to:
+              </h3>
+              <p class="text-ink">
+                {{ addressForm.value.name }}, {{ addressForm.value.line1 }},
+                {{ addressForm.value.city }}, {{ addressForm.value.country }}
+              </p>
+            </div>
+
+            <div>
+              <h3 class="text-sm font-semibold text-steel mb-1">Delivery:</h3>
+              <p class="text-ink">
+                {{ selectedDeliveryMethod?.shortName }} —
+                {{ selectedDeliveryMethod?.price | currency }}
+              </p>
+            </div>
+
+            <div class="flex gap-3 pt-2">
+              <button
+                (click)="backToStep(2)"
+                class="border border-gray-300 px-6 py-2 rounded hover:bg-gray-100 transition"
+              >
+                Back
+              </button>
+              <button
+                (click)="continueToPayment()"
+                class="bg-accent text-white font-semibold px-6 py-2 rounded hover:opacity-90 transition"
+              >
+                Continue to Payment
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- payment -->
+        @if (currentStep === 4) {
+          <div class="bg-white rounded-lg shadow-sm p-6 space-y-4">
+            <h2 class="font-display font-bold text-lg text-ink tracking-wide">
+              PAYMENT
+            </h2>
+
+            <div #paymentElement></div>
+
+            @if (paymentError) {
+              <p class="text-danger text-sm">{{ paymentError }}</p>
+            }
+
+            <button
+              (click)="pay()"
+              [disabled]="processingPayment"
+              class="w-full bg-accent text-white font-semibold py-3 rounded hover:opacity-90 transition disabled:opacity-50"
+            >
+              {{ processingPayment ? "Processing..." : "Pay Now" }}
+            </button>
+          </div>
+        }
       </div>
 
-        <!-- checkout summary section -->
+      <!-- checkout summary section -->
       <div class="bg-white rounded-lg shadow-sm p-6 h-fit">
-        <h2 class="font-display font-bold text-lg text-ink mb-4 tracking-wide">ORDER SUMMARY</h2>
+        <h2 class="font-display font-bold text-lg text-ink mb-4 tracking-wide">
+          ORDER SUMMARY
+        </h2>
 
         @for (item of cartService.cart()?.items; track item.productId) {
           <div class="flex justify-between text-sm text-steel mb-2">
@@ -105,14 +231,25 @@
 
         <div class="border-t border-gray-200 my-4"></div>
 
-        <div class="flex justify-between font-bold text-ink text-lg">
+        <div class="flex justify-between text-steel mb-2">
           <span>Subtotal</span>
           <span>{{ cartService.subtotal() | currency }}</span>
         </div>
+
+        @if (selectedDeliveryMethod) {
+          <div class="flex justify-between text-steel mb-2">
+            <span>Shipping</span>
+            <span>{{ shippingPrice | currency }}</span>
+          </div>
+        }
+
+        <div class="border-t border-gray-200 my-4"></div>
+
+        <div class="flex justify-between font-bold text-ink text-lg">
+          <span>Total</span>
+          <span>{{ total | currency }}</span>
+        </div>
       </div>
-
     </div>
-
   }
-
 </div>

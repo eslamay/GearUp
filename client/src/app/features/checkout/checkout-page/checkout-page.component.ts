@@ -1,16 +1,18 @@
 import { Component, ElementRef, inject, OnInit, ViewChild } from '@angular/core';
 import { SpinnerComponent } from '../../../shared/components/spinner/spinner.component';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
+import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
 import { CurrencyPipe } from '@angular/common';
 import { CartService } from '../../cart/cart.service';
 import { CheckoutService } from '../checkout.service';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AccountService } from '../../account/account.service';
 import { DeliveryMethod } from '../../../core/models/delivery-method';
+import { environment } from '../../../../environments/environment.development';
 
 @Component({
   selector: 'app-checkout-page',
-  imports: [CurrencyPipe, RouterLink,ReactiveFormsModule, SpinnerComponent],
+  imports: [CurrencyPipe, ReactiveFormsModule, SpinnerComponent],
   templateUrl: './checkout-page.component.html',
   styleUrl: './checkout-page.component.css'
 })
@@ -42,6 +44,13 @@ export class CheckoutPageComponent implements OnInit {
   deliveryMethods: DeliveryMethod[] = [];
   selectedDeliveryMethod: DeliveryMethod | null = null;
 
+  // payment
+  stripe: Stripe | null = null;
+  elements: StripeElements | null = null;
+  paymentError: string | null = null;
+  processingPayment = false;
+  clientSecret: string | null = null;
+
   ngOnInit() {
     this.cartService.getCart().subscribe({
       next: (cart) => {
@@ -56,6 +65,10 @@ export class CheckoutPageComponent implements OnInit {
         this.router.navigateByUrl('/cart');
       }
     });
+
+    this.checkoutService.getDeliveryMethods().subscribe(methods => {
+    this.deliveryMethods = methods;
+  });
   }
 
 
@@ -101,6 +114,44 @@ export class CheckoutPageComponent implements OnInit {
     return this.cartService.subtotal() + this.shippingPrice;
   }
 
+  // Review order and payment methods
+  async continueToPayment() {
+    this.currentStep = 4;
+
+    const cart = this.cartService.cart();
+    if (!cart) return;
+
+    this.checkoutService.createOrUpdatePaymentIntent(cart.id).subscribe({
+      next: async (updatedCart) => {
+        this.clientSecret = updatedCart.clientSecret;
+        await this.initStripeElements();
+      },
+      error: () => {
+        this.paymentError = 'Could not initialize payment. Please try again.';
+      }
+    });
+  }
+
+  async initStripeElements() {
+    if (!this.clientSecret) return;
+
+    this.stripe = await loadStripe(environment.stripePublicKey);
+    if (!this.stripe) return;
+
+    this.elements = this.stripe.elements({ clientSecret: this.clientSecret });
+
+    const paymentElement = this.elements.create('payment');
+
+    setTimeout(() => {
+      if (this.paymentElementRef) {
+        paymentElement.mount(this.paymentElementRef.nativeElement);
+      }
+    });
+  }
+  
+  async pay() {
+    console.log('Pay clicked - order creation logic comes next');
+  }
 
   backToStep(step: number) {
     this.currentStep = step;
