@@ -1,0 +1,39 @@
+<div class="container py-10">
+
+  @if (loading) {
+    <app-spinner />
+  } @else {
+
+    <h1 class="font-display font-bold text-3xl text-ink mb-6 tracking-wide">CHECKOUT</h1>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+      <!-- خطوات الـ Checkout -->
+      <div class="lg:col-span-2 space-y-6">
+        <p class="text-steel">Checkout steps will go here...</p>
+      </div>
+
+        <!-- checkout summary section -->
+      <div class="bg-white rounded-lg shadow-sm p-6 h-fit">
+        <h2 class="font-display font-bold text-lg text-ink mb-4 tracking-wide">ORDER SUMMARY</h2>
+
+        @for (item of cartService.cart()?.items; track item.productId) {
+          <div class="flex justify-between text-sm text-steel mb-2">
+            <span>{{ item.productName }} × {{ item.quantity }}</span>
+            <span>{{ item.price * item.quantity | currency }}</span>
+          </div>
+        }
+
+        <div class="border-t border-gray-200 my-4"></div>
+
+        <div class="flex justify-between font-bold text-ink text-lg">
+          <span>Subtotal</span>
+          <span>{{ cartService.subtotal() | currency }}</span>
+        </div>
+      </div>
+
+    </div>
+
+  }
+
+</div>
