@@ -8,6 +8,7 @@ import { Product } from '../../../core/models/product';
 import { ConfirmDialogComponent } from "../../../shared/components/confirm-dialog/confirm-dialog.component";
 import { AccountService } from '../../account/account.service';
 import { CartService } from '../../cart/cart.service';
+import { VendorService } from '../../vendor/vendor.service';
 
 @Component({
   selector: 'app-product-details',
@@ -21,6 +22,7 @@ export class ProductDetailsComponent implements OnInit {
   private productService = inject(ProductService);
   private accountService = inject(AccountService);
   private cartService = inject(CartService);
+  private vendorService = inject(VendorService);
 
   product: Product | null = null;
   loading = true;
@@ -33,6 +35,10 @@ export class ProductDetailsComponent implements OnInit {
   addingToCart = false;
   addedMessage = false;
   cartErrorMessage: string | null = null;
+
+  private get isAdmin(): boolean {
+  return this.accountService.currentUser()?.roles === 'Admin';
+}
 
   ngOnInit() {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -94,20 +100,21 @@ export class ProductDetailsComponent implements OnInit {
   }
 
   onDeleteConfirmed(confirmed: boolean) {
-    this.showDeleteConfirm = false;
+  this.showDeleteConfirm = false;
 
-    if (!confirmed || !this.product) return;
+  if (!confirmed || !this.product) return;
 
-    this.deleting = true;
-    this.productService.deleteProduct(this.product.id).subscribe({
-      next: () => {
-        this.router.navigateByUrl('/shop');
-      },
-      error: () => {
-        this.deleting = false;
-      }
-    });
-  }
+  this.deleting = true;
+
+  const request$ = this.isAdmin
+    ? this.productService.deleteProduct(this.product.id)
+    : this.vendorService.deleteProduct(this.product.id);
+
+  request$.subscribe({
+    next: () => this.router.navigateByUrl('/shop'),
+    error: () => (this.deleting = false)
+  });
+}
 
   get canManageProduct(): boolean {
   const user = this.accountService.currentUser();

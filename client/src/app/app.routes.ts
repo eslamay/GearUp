@@ -10,6 +10,9 @@ import { CheckoutPageComponent } from './features/checkout/checkout-page/checkou
 import { OrderSuccessComponent } from './features/checkout/order-success/order-success.component';
 import { OrderHistoryComponent } from './features/orders/order-history/order-history.component';
 import { OrderDetailsComponent } from './features/orders/order-details/order-details.component';
+import { roleGuard } from './core/guards/role.guard';
+import { VendorDashboardComponent } from './features/vendor/vendor-dashboard/vendor-dashboard.component';
+import { AdminDashboardComponent } from './features/admin/admin-dashboard/admin-dashboard.component';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/shop', pathMatch: 'full' },
@@ -32,6 +35,8 @@ export const routes: Routes = [
   { path: 'order-success/:id', component: OrderSuccessComponent, canActivate: [authGuard] },
   { path: 'orders', component: OrderHistoryComponent, canActivate: [authGuard] },
   { path: 'orders/:id', component: OrderDetailsComponent, canActivate: [authGuard] },
+  { path: 'vendor/dashboard', component: VendorDashboardComponent, canActivate: [roleGuard(['Vendor'])] },
+  { path: 'admin/dashboard', component: AdminDashboardComponent, canActivate: [roleGuard(['Admin'])] },
   { path: 'account/login', component: LoginComponent },
   { path: 'account/register', component: RegisterComponent },
 ];

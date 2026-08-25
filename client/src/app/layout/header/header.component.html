@@ -18,13 +18,23 @@
       </a>
 
       @if (accountService.currentUser(); as user) {
-        @if (user.roles === "Vendor" || user.roles === "Admin") {
+        @if (user.roles === "Vendor") {
           <a
-            routerLink="/products/new"
+            routerLink="/vendor/dashboard"
             routerLinkActive="text-accent"
             class="hover:text-accent transition"
           >
-            ADD PRODUCT
+            VENDOR DASHBOARD
+          </a>
+        }
+
+        @if (user.roles === "Admin") {
+          <a
+            routerLink="/admin/dashboard"
+            routerLinkActive="text-accent"
+            class="hover:text-accent transition"
+          >
+            ADMIN DASHBOARD
           </a>
         }
 

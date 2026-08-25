@@ -5,6 +5,8 @@ import { ImageUrlPipe } from '../../../shared/pipes/image-url.pipe';
 import { ProductService } from '../product.service';
 import { Product } from '../../../core/models/product';
 import { Observable } from 'rxjs';
+import { AccountService } from '../../account/account.service';
+import { VendorService } from '../../vendor/vendor.service';
 
 @Component({
   selector: 'app-product-form',
@@ -15,6 +17,8 @@ import { Observable } from 'rxjs';
 export class ProductFormComponent implements OnInit {
   private fb = inject(FormBuilder);
   private productService = inject(ProductService);
+  private vendorService = inject(VendorService);
+  private accountService = inject(AccountService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -37,6 +41,15 @@ export class ProductFormComponent implements OnInit {
     quantityInStock: [1, [Validators.required, Validators.min(1)]]
   });
 
+
+  private get isAdmin(): boolean {
+    return this.accountService.currentUser()?.roles === 'Admin';
+  }
+
+  private get returnUrl(): string {
+    return this.isAdmin ? '/shop' : '/vendor/dashboard';
+  }
+
   ngOnInit(): void {
     const idParam = this.route.snapshot.paramMap.get('id');
 
@@ -49,7 +62,12 @@ export class ProductFormComponent implements OnInit {
 
   loadProduct(id: number) {
     this.loading = true;
-    this.productService.getProduct(id).subscribe({
+
+    const request$ = this.isAdmin
+      ? this.productService.getProduct(id)
+      : this.vendorService.getMyProduct(id);
+
+    request$.subscribe({
       next: (product) => {
         this.form.patchValue({
           name: product.name,
@@ -62,9 +80,7 @@ export class ProductFormComponent implements OnInit {
         this.existingPictureUrl = product.pictureUrl;
         this.loading = false;
       },
-      error: () => {
-        this.loading = false;
-      }
+      error: () => (this.loading = false)
     });
   }
 
@@ -104,14 +120,18 @@ export class ProductFormComponent implements OnInit {
       formData.append('file', this.selectedFile);
     }
 
-    const request$ = this.isEditMode && this.productId
-      ? this.productService.updateProduct(this.productId, formData)
-      : this.productService.createProduct(formData);
+    const request$ = this.isAdmin
+      ? (this.isEditMode && this.productId
+          ? this.productService.updateProduct(this.productId, formData)
+          : this.productService.createProduct(formData))
+      : (this.isEditMode && this.productId
+          ? this.vendorService.updateProduct(this.productId, formData)
+          : this.vendorService.createProduct(formData));
 
     (request$ as Observable<Product>).subscribe({
       next: () => {
         this.loading = false;
-        this.router.navigateByUrl('/shop');
+        this.router.navigateByUrl(this.returnUrl);
       },
       error: (err) => {
         this.loading = false;
