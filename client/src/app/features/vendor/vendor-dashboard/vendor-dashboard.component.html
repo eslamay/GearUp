@@ -1,0 +1,72 @@
+<div class="container py-10">
+
+  <div class="flex items-center justify-between mb-6">
+    <h1 class="font-display font-bold text-3xl text-ink tracking-wide">VENDOR DASHBOARD</h1>
+    <a routerLink="/products/new"
+       class="bg-accent text-white font-semibold px-5 py-2 rounded hover:opacity-90 transition">
+      + Add New Product
+    </a>
+  </div>
+
+  @if (loading) {
+    <app-spinner />
+  } @else if (dashboard) {
+
+    <!-- stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-white rounded-lg shadow-sm p-5">
+        <p class="text-steel text-sm">Total Products</p>
+        <p class="font-display font-bold text-2xl text-ink">{{ dashboard.totalProducts }}</p>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm p-5">
+        <p class="text-steel text-sm">Pending</p>
+        <p class="font-display font-bold text-2xl text-steel">{{ dashboard.pendingProducts }}</p>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm p-5">
+        <p class="text-steel text-sm">Approved</p>
+        <p class="font-display font-bold text-2xl text-success">{{ dashboard.approvedProducts }}</p>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm p-5">
+        <p class="text-steel text-sm">Rejected</p>
+        <p class="font-display font-bold text-2xl text-danger">{{ dashboard.rejectedProducts }}</p>
+      </div>
+    </div>
+
+    <!-- vendor product list -->
+    <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+      @for (product of dashboard.products; track product.id) {
+        <div class="flex items-center gap-4 p-4 border-b border-gray-100 last:border-0">
+
+          <img [src]="product.pictureUrl | imageUrl" [alt]="product.name"
+               class="w-14 h-14 object-cover rounded" />
+
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-ink truncate">{{ product.name }}</p>
+            <p class="text-sm text-steel">{{ product.price | currency }} · Stock: {{ product.quantityInStock }}</p>
+          </div>
+
+          <span class="text-xs font-semibold px-3 py-1 rounded-full" [ngClass]="statusClasses(product.status)">
+            {{ product.status }}
+          </span>
+
+          <a [routerLink]="['/products/edit', product.id]"
+             class="text-sm text-steel hover:text-accent transition">Edit</a>
+
+          <button (click)="openDeleteConfirm(product.id)"
+                  class="text-sm text-danger hover:underline">Delete</button>
+
+        </div>
+      } @empty {
+        <p class="text-steel text-center py-10">You haven't added any products yet.</p>
+      }
+    </div>
+
+  }
+
+</div>
+
+@if (deleteTargetId !== null) {
+  <app-confirm-dialog
+    message="Are you sure you want to delete this product?"
+    (confirmed)="onDeleteConfirmed($event)" />
+}
