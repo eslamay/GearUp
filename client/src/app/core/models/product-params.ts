@@ -3,7 +3,7 @@ export class ProductParams {
   types: string[] = [];
   sort = 'newest';
   search = '';
-  status?: string;
+   status: string = ''; 
   pageIndex = 1;
   pageSize = 20;
 }

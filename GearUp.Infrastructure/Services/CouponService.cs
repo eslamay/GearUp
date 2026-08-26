@@ -17,26 +17,28 @@ namespace GearUp.Infrastructure.Services
 
             var options = new PromotionCodeListOptions
             {
-                Code = code
+                Code = code,
+                Expand = new List<string> { "data.promotion.coupon" }
             };
 
             var promotionCodes = await promotionService.ListAsync(options);
-
             var promotionCode = promotionCodes.FirstOrDefault();
 
-            if (promotionCode != null && promotionCode.Promotion.Coupon != null)
+            if (promotionCode == null || promotionCode.Promotion?.Coupon == null)
             {
-                return new AppCoupon
-                {
-                    Name = promotionCode.Promotion.Coupon.Name,
-                    AmountOff = promotionCode.Promotion.Coupon.AmountOff,
-                    PercentOff = promotionCode.Promotion.Coupon.PercentOff,
-                    CouponId = promotionCode.Promotion.Coupon.Id,
-                    PromotionCode = promotionCode.Code
-                };
+                return null;
             }
 
-            return null;
+            var coupon = promotionCode.Promotion.Coupon;
+
+            return new AppCoupon
+            {
+                Name = coupon.Name,
+                AmountOff = coupon.AmountOff,
+                PercentOff = coupon.PercentOff,
+                CouponId = coupon.Id,
+                PromotionCode = promotionCode.Code
+            };
         }
     }
 }

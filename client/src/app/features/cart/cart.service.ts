@@ -1,7 +1,7 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { environment } from '../../../environments/environment.development';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { ShoppingCart } from '../../core/models/shopping-cart';
+import { AppCoupon, ShoppingCart } from '../../core/models/shopping-cart';
 import { Observable, tap } from 'rxjs';
 
 @Injectable({
@@ -75,4 +75,9 @@ export class CartService {
       tap(() => this.cart.set(null))
     );
   }
+
+  validateCoupon(code: string): Observable<AppCoupon> {
+  return this.http.get<AppCoupon>(`${this.baseUrl}/Coupons/${code}`);
+}
+
 }

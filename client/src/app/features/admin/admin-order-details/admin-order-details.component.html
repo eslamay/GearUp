@@ -1,22 +1,29 @@
 <div class="container py-10 max-w-3xl">
-
   @if (loading) {
     <app-spinner />
   } @else if (notFound) {
     <div class="text-center py-20">
       <p class="text-steel text-lg mb-4">Order not found.</p>
-      <a routerLink="/admin/dashboard" class="text-accent hover:underline">Back to Dashboard</a>
+      <a routerLink="/admin/dashboard" class="text-accent hover:underline"
+        >Back to Dashboard</a
+      >
     </div>
   } @else if (order) {
-
-    <a routerLink="/admin/dashboard" class="text-sm text-steel hover:text-accent transition inline-block mb-6">
+    <a
+      routerLink="/admin/dashboard"
+      class="text-sm text-steel hover:text-accent transition inline-block mb-6"
+    >
       ← Back to Dashboard
     </a>
 
     <div class="flex items-center justify-between mb-6">
       <div>
-        <h1 class="font-display font-bold text-2xl text-ink tracking-wide">ORDER #{{ order.id }}</h1>
-        <p class="text-sm text-steel">{{ order.buyerEmail }} · {{ order.orderDate | date: 'medium' }}</p>
+        <h1 class="font-display font-bold text-2xl text-ink tracking-wide">
+          ORDER #{{ order.id }}
+        </h1>
+        <p class="text-sm text-steel">
+          {{ order.buyerEmail }} · {{ order.orderDate | date: "medium" }}
+        </p>
       </div>
 
       <span
@@ -25,24 +32,36 @@
         [class.text-success]="order.status === 'PaymentReceived'"
         [class.bg-gray-100]="order.status === 'Pending'"
         [class.text-steel]="order.status === 'Pending'"
-        [class.bg-red-100]="order.status === 'PaymentFailed' || order.status === 'Refunded'"
-        [class.text-danger]="order.status === 'PaymentFailed' || order.status === 'Refunded'"
+        [class.bg-red-100]="
+          order.status === 'PaymentFailed' || order.status === 'Refunded'
+        "
+        [class.text-danger]="
+          order.status === 'PaymentFailed' || order.status === 'Refunded'
+        "
       >
         {{ order.status }}
       </span>
     </div>
 
     <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
-      <h2 class="font-display font-bold text-lg text-ink tracking-wide mb-4">ITEMS</h2>
+      <h2 class="font-display font-bold text-lg text-ink tracking-wide mb-4">
+        ITEMS
+      </h2>
       <div class="space-y-4">
         @for (item of order.orderItems; track item.productId) {
           <div class="flex items-center gap-4">
-            <img [src]="item.pictureUrl | imageUrl" [alt]="item.productName" class="w-16 h-16 object-cover rounded" />
+            <img
+              [src]="item.pictureUrl | imageUrl"
+              [alt]="item.productName"
+              class="w-16 h-16 object-cover rounded"
+            />
             <div class="flex-1">
               <p class="font-medium text-ink">{{ item.productName }}</p>
               <p class="text-sm text-steel">Qty: {{ item.quantity }}</p>
             </div>
-            <p class="font-semibold text-ink">{{ item.price * item.quantity | currency }}</p>
+            <p class="font-semibold text-ink">
+              {{ item.price * item.quantity | currency }}
+            </p>
           </div>
         }
       </div>
@@ -50,24 +69,37 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
       <div class="bg-white rounded-lg shadow-sm p-6">
-        <h2 class="font-display font-bold text-lg text-ink tracking-wide mb-3">SHIPPING</h2>
+        <h2 class="font-display font-bold text-lg text-ink tracking-wide mb-3">
+          SHIPPING
+        </h2>
         <p class="text-steel text-sm leading-relaxed">
           {{ order.shippingAddress.name }}<br />
           {{ order.shippingAddress.line1 }}<br />
-          {{ order.shippingAddress.city }}, {{ order.shippingAddress.state }} {{ order.shippingAddress.postalCode }}<br />
+          {{ order.shippingAddress.city }}, {{ order.shippingAddress.state }}
+          {{ order.shippingAddress.postalCode }}<br />
           {{ order.shippingAddress.country }}
         </p>
-        <p class="text-sm text-ink font-medium mt-3">{{ order.deliveryMethod }}</p>
+        <p class="text-sm text-ink font-medium mt-3">
+          {{ order.deliveryMethod }}
+        </p>
       </div>
 
       <div class="bg-white rounded-lg shadow-sm p-6">
-        <h2 class="font-display font-bold text-lg text-ink tracking-wide mb-3">PAYMENT</h2>
+        <h2 class="font-display font-bold text-lg text-ink tracking-wide mb-3">
+          PAYMENT
+        </h2>
         <div class="flex justify-between text-sm text-steel mb-2">
           <span>Subtotal</span><span>{{ order.subtotal | currency }}</span>
         </div>
         <div class="flex justify-between text-sm text-steel mb-2">
           <span>Shipping</span><span>{{ order.shippingPrice | currency }}</span>
         </div>
+        @if (order.discount > 0) {
+          <div class="flex justify-between text-sm text-success mb-2">
+            <span>Discount</span>
+            <span>-{{ order.discount | currency }}</span>
+          </div>
+        }
         <div class="border-t border-gray-200 my-3"></div>
         <div class="flex justify-between font-bold text-ink">
           <span>Total</span><span>{{ order.total | currency }}</span>
@@ -78,23 +110,25 @@
       </div>
     </div>
 
-    @if (order.status === 'PaymentReceived') {
-      <button (click)="openRefundConfirm()" [disabled]="refunding"
-        class="border border-danger text-danger px-6 py-2 rounded hover:bg-red-50 transition disabled:opacity-50">
-        {{ refunding ? 'Processing Refund...' : 'Refund Order' }}
+    @if (order.status === "PaymentReceived") {
+      <button
+        (click)="openRefundConfirm()"
+        [disabled]="refunding"
+        class="border border-danger text-danger px-6 py-2 rounded hover:bg-red-50 transition disabled:opacity-50"
+      >
+        {{ refunding ? "Processing Refund..." : "Refund Order" }}
       </button>
     }
 
     @if (refundError) {
       <p class="text-danger text-sm mt-2">{{ refundError }}</p>
     }
-
   }
-
 </div>
 
 @if (showRefundConfirm) {
   <app-confirm-dialog
     message="Are you sure you want to refund this order? This will reverse the payment via Stripe."
-    (confirmed)="onRefundConfirmed($event)" />
+    (confirmed)="onRefundConfirmed($event)"
+  />
 }

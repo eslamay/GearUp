@@ -5,14 +5,15 @@ import { loadStripe, Stripe, StripeElements } from '@stripe/stripe-js';
 import { CurrencyPipe } from '@angular/common';
 import { CartService } from '../../cart/cart.service';
 import { CheckoutService } from '../checkout.service';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { AccountService } from '../../account/account.service';
 import { DeliveryMethod } from '../../../core/models/delivery-method';
 import { environment } from '../../../../environments/environment.development';
+import { AppCoupon } from '../../../core/models/shopping-cart';
 
 @Component({
   selector: 'app-checkout-page',
-  imports: [CurrencyPipe, ReactiveFormsModule, SpinnerComponent],
+  imports: [CurrencyPipe, FormsModule, ReactiveFormsModule, SpinnerComponent],
   templateUrl: './checkout-page.component.html',
   styleUrl: './checkout-page.component.css'
 })
@@ -58,7 +59,9 @@ export class CheckoutPageComponent implements OnInit {
 
         if (!cart || cart.items.length === 0) {
           this.router.navigateByUrl('/cart');
+          return;
         }
+        this.prefillAddress();
       },
       error: () => {
         this.loading = false;
@@ -108,11 +111,7 @@ export class CheckoutPageComponent implements OnInit {
 
   get shippingPrice(): number {
     return this.selectedDeliveryMethod?.price ?? 0;
-  }
-
-  get total(): number {
-    return this.cartService.subtotal() + this.shippingPrice;
-  }
+  } 
 
   // Review order and payment methods
   async continueToPayment() {
@@ -183,7 +182,7 @@ private createOrderAfterPayment(paymentIntent: any) {
       expMonth: card?.exp_month ?? 0,
       expYear: card?.exp_year ?? 0
     },
-    discount: 0
+    discount: this.discountAmount   
   };
 
   this.checkoutService.createOrder(orderDto).subscribe({
@@ -199,6 +198,55 @@ private createOrderAfterPayment(paymentIntent: any) {
         : 'Payment succeeded but order creation failed. Please contact support.';
     }
   });
+}
+
+// Coupon methods
+couponCode = '';
+appliedCoupon: AppCoupon | null = null;
+couponError: string | null = null;
+applyingCoupon = false;
+
+applyCoupon() {
+  if (!this.couponCode.trim()) return;
+
+  this.applyingCoupon = true;
+  this.couponError = null;
+
+  this.cartService.validateCoupon(this.couponCode.trim()).subscribe({
+    next: (coupon) => {
+      this.appliedCoupon = coupon;
+      this.applyingCoupon = false;
+    },
+    error: () => {
+      this.couponError = 'Invalid or expired coupon code.';
+      this.appliedCoupon = null;
+      this.applyingCoupon = false;
+    }
+  });
+}
+
+removeCoupon() {
+  this.appliedCoupon = null;
+  this.couponCode = '';
+  this.couponError = null;
+}
+
+get discountAmount(): number {
+  if (!this.appliedCoupon) return 0;
+
+  if (this.appliedCoupon.amountOff) {
+    return this.appliedCoupon.amountOff / 100; 
+  }
+
+  if (this.appliedCoupon.percentOff) {
+    return (this.cartService.subtotal() * this.appliedCoupon.percentOff) / 100;
+  }
+
+  return 0;
+}
+
+get total(): number {
+  return this.cartService.subtotal() + this.shippingPrice - this.discountAmount;
 }
 
   backToStep(step: number) {
