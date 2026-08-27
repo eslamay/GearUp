@@ -1,24 +1,30 @@
 <div class="container py-10">
-
-  <h1 class="font-display font-bold text-3xl text-ink mb-6 tracking-wide">ADMIN DASHBOARD</h1>
+  <h1 class="font-display font-bold text-3xl text-ink mb-6 tracking-wide">
+    ADMIN DASHBOARD
+  </h1>
 
   <!-- stats -->
   @if (loadingDashboard) {
     <app-spinner />
   } @else if (dashboard) {
-
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       <div class="bg-white rounded-lg shadow-sm p-5">
         <p class="text-steel text-sm">Total Products</p>
-        <p class="font-display font-bold text-2xl text-ink">{{ dashboard.totalProducts }}</p>
+        <p class="font-display font-bold text-2xl text-ink">
+          {{ dashboard.totalProducts }}
+        </p>
       </div>
       <div class="bg-white rounded-lg shadow-sm p-5">
         <p class="text-steel text-sm">Pending</p>
-        <p class="font-display font-bold text-2xl text-steel">{{ dashboard.pendingProducts }}</p>
+        <p class="font-display font-bold text-2xl text-steel">
+          {{ dashboard.pendingProducts }}
+        </p>
       </div>
       <div class="bg-white rounded-lg shadow-sm p-5">
         <p class="text-steel text-sm">Approved</p>
-        <p class="font-display font-bold text-2xl text-success">{{ dashboard.approvedProducts }}</p>
+        <p class="font-display font-bold text-2xl text-success">
+          {{ dashboard.approvedProducts }}
+        </p>
       </div>
       <div class="bg-white rounded-lg shadow-sm p-5">
         <p class="text-steel text-sm">Rejected / Suspended</p>
@@ -28,32 +34,43 @@
       </div>
       <div class="bg-white rounded-lg shadow-sm p-5">
         <p class="text-steel text-sm">Total Orders</p>
-        <p class="font-display font-bold text-2xl text-ink">{{ dashboard.totalOrders }}</p>
+        <p class="font-display font-bold text-2xl text-ink">
+          {{ dashboard.totalOrders }}
+        </p>
       </div>
       <div class="bg-white rounded-lg shadow-sm p-5">
         <p class="text-steel text-sm">Total Revenue</p>
-        <p class="font-display font-bold text-2xl text-accent">{{ dashboard.totalRevenue | currency }}</p>
+        <p class="font-display font-bold text-2xl text-accent">
+          {{ dashboard.totalRevenue | currency }}
+        </p>
       </div>
       <div class="bg-white rounded-lg shadow-sm p-5">
         <p class="text-steel text-sm">Vendors</p>
-        <p class="font-display font-bold text-2xl text-ink">{{ dashboard.vendorCount }}</p>
+        <p class="font-display font-bold text-2xl text-ink">
+          {{ dashboard.vendorCount }}
+        </p>
       </div>
       <div class="bg-white rounded-lg shadow-sm p-5">
         <p class="text-steel text-sm">GearUp Products</p>
-        <p class="font-display font-bold text-2xl text-ink">{{ dashboard.adminPublishedProducts }}</p>
+        <p class="font-display font-bold text-2xl text-ink">
+          {{ dashboard.adminPublishedProducts }}
+        </p>
       </div>
     </div>
 
     <!-- sales -->
     <div class="bg-white rounded-lg shadow-sm p-6 mb-8">
-      <h2 class="font-display font-bold text-lg text-ink tracking-wide mb-4">REVENUE OVER TIME</h2>
+      <h2 class="font-display font-bold text-lg text-ink tracking-wide mb-4">
+        REVENUE OVER TIME
+      </h2>
       <canvas #salesChart height="80"></canvas>
     </div>
-
   }
 
   <!-- Tabs -->
-  <div class="flex gap-6 border-b border-gray-200 mb-6 font-display font-bold text-sm tracking-wide">
+  <div
+    class="flex gap-6 border-b border-gray-200 mb-6 font-display font-bold text-sm tracking-wide"
+  >
     <button
       (click)="activeTab = 'products'"
       class="pb-3 border-b-2 transition"
@@ -78,9 +95,16 @@
   </div>
 
   <!-- Products -->
-  @if (activeTab === 'products') {
+  @if (activeTab === "products") {
+    <div class="flex justify-between items-center gap-3 mb-4">
+      <input
+        type="text"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange($event)"
+        placeholder="Search products..."
+        class="flex-1 max-w-xs border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent"
+      />
 
-    <div class="flex justify-end mb-4">
       <select
         [(ngModel)]="productParams.status"
         (ngModelChange)="onStatusFilterChange()"
@@ -97,46 +121,64 @@
     } @else if (products.length === 0) {
       <p class="text-steel text-center py-16">No products found.</p>
     } @else {
-
       <div class="bg-white rounded-lg shadow-sm overflow-hidden">
         @for (product of products; track product.id) {
-          <div class="flex items-center gap-4 p-4 border-b border-gray-100 last:border-0">
-
-            <img [src]="product.pictureUrl | imageUrl" [alt]="product.name"
-                 class="w-14 h-14 object-cover rounded" />
+          <div
+            class="flex items-center gap-4 p-4 border-b border-gray-100 last:border-0"
+          >
+            <img
+              [src]="product.pictureUrl | imageUrl"
+              [alt]="product.name"
+              class="w-14 h-14 object-cover rounded"
+            />
 
             <div class="flex-1 min-w-0">
               <p class="font-medium text-ink truncate">{{ product.name }}</p>
               <p class="text-sm text-steel">
-                {{ product.price | currency }} · By {{ product.vendor?.userName ?? 'GearUp' }}
+                {{ product.price | currency }} · By
+                {{ product.vendor?.userName ?? "GearUp" }}
               </p>
             </div>
 
-            <span class="text-xs font-semibold px-3 py-1 rounded-full" [ngClass]="statusClasses(product.status)">
+            <span
+              class="text-xs font-semibold px-3 py-1 rounded-full"
+              [ngClass]="statusClasses(product.status)"
+            >
               {{ product.status }}
             </span>
 
-            @if (product.status === 'Pending') {
-              <button (click)="approve(product.id)" [disabled]="processingProductId === product.id"
-                class="text-sm bg-success text-white px-4 py-1.5 rounded hover:opacity-90 transition disabled:opacity-50">
+            @if (product.status === "Pending") {
+              <button
+                (click)="approve(product.id)"
+                [disabled]="processingProductId === product.id"
+                class="text-sm bg-success text-white px-4 py-1.5 rounded hover:opacity-90 transition disabled:opacity-50"
+              >
                 Approve
               </button>
-              <button (click)="reject(product.id)" [disabled]="processingProductId === product.id"
-                class="text-sm border border-danger text-danger px-4 py-1.5 rounded hover:bg-red-50 transition disabled:opacity-50">
+              <button
+                (click)="reject(product.id)"
+                [disabled]="processingProductId === product.id"
+                class="text-sm border border-danger text-danger px-4 py-1.5 rounded hover:bg-red-50 transition disabled:opacity-50"
+              >
                 Reject
               </button>
-            } @else if (product.status === 'Approved') {
-              <button (click)="suspend(product.id)" [disabled]="processingProductId === product.id"
-                class="text-sm border border-danger text-danger px-4 py-1.5 rounded hover:bg-red-50 transition disabled:opacity-50">
+            } @else if (product.status === "Approved") {
+              <button
+                (click)="suspend(product.id)"
+                [disabled]="processingProductId === product.id"
+                class="text-sm border border-danger text-danger px-4 py-1.5 rounded hover:bg-red-50 transition disabled:opacity-50"
+              >
                 Suspend
               </button>
             } @else {
-              <button (click)="approve(product.id)" [disabled]="processingProductId === product.id"
-                class="text-sm bg-success text-white px-4 py-1.5 rounded hover:opacity-90 transition disabled:opacity-50">
+              <button
+                (click)="approve(product.id)"
+                [disabled]="processingProductId === product.id"
+                class="text-sm bg-success text-white px-4 py-1.5 rounded hover:opacity-90 transition disabled:opacity-50"
+              >
                 Reinstate
               </button>
             }
-
           </div>
         }
       </div>
@@ -148,45 +190,56 @@
               (click)="goToProductPage($index + 1)"
               [class.bg-accent]="productParams.pageIndex === $index + 1"
               [class.text-white]="productParams.pageIndex === $index + 1"
-              class="w-9 h-9 rounded border border-gray-300 text-sm hover:bg-gray-100 transition">
+              class="w-9 h-9 rounded border border-gray-300 text-sm hover:bg-gray-100 transition"
+            >
               {{ $index + 1 }}
             </button>
           }
         </div>
       }
-
     }
-
   }
 
   <!-- Orders -->
-  @if (activeTab === 'orders') {
-
+  @if (activeTab === "orders") {
     @if (loadingOrders) {
       <app-spinner />
     } @else if (orders.length === 0) {
       <p class="text-steel text-center py-16">No orders yet.</p>
     } @else {
-
       <div class="space-y-4">
         @for (order of orders; track order.id) {
-          <div (click)="openOrder(order.id)"
-               class="bg-white rounded-lg shadow-sm p-6 flex items-center justify-between cursor-pointer hover:shadow-md transition">
+          <div
+            (click)="openOrder(order.id)"
+            class="bg-white rounded-lg shadow-sm p-6 flex items-center justify-between cursor-pointer hover:shadow-md transition"
+          >
             <div>
-              <p class="font-medium text-ink">Order #{{ order.id }} — {{ order.buyerEmail }}</p>
-              <p class="text-sm text-steel">{{ order.orderDate | date: 'mediumDate' }}</p>
+              <p class="font-medium text-ink">
+                Order #{{ order.id }} — {{ order.buyerEmail }}
+              </p>
+              <p class="text-sm text-steel">
+                {{ order.orderDate | date: "mediumDate" }}
+              </p>
             </div>
 
             <div class="text-right">
-              <p class="font-display font-bold text-accent">{{ order.total | currency }}</p>
+              <p class="font-display font-bold text-accent">
+                {{ order.total | currency }}
+              </p>
               <span
                 class="text-xs font-semibold px-3 py-1 rounded-full"
                 [class.bg-green-100]="order.status === 'PaymentReceived'"
                 [class.text-success]="order.status === 'PaymentReceived'"
                 [class.bg-gray-100]="order.status === 'Pending'"
                 [class.text-steel]="order.status === 'Pending'"
-                [class.bg-red-100]="order.status === 'PaymentFailed' || order.status === 'Refunded'"
-                [class.text-danger]="order.status === 'PaymentFailed' || order.status === 'Refunded'"
+                [class.bg-red-100]="
+                  order.status === 'PaymentFailed' ||
+                  order.status === 'Refunded'
+                "
+                [class.text-danger]="
+                  order.status === 'PaymentFailed' ||
+                  order.status === 'Refunded'
+                "
               >
                 {{ order.status }}
               </span>
@@ -202,15 +255,13 @@
               (click)="goToOrderPage($index + 1)"
               [class.bg-accent]="orderParams.pageIndex === $index + 1"
               [class.text-white]="orderParams.pageIndex === $index + 1"
-              class="w-9 h-9 rounded border border-gray-300 text-sm hover:bg-gray-100 transition">
+              class="w-9 h-9 rounded border border-gray-300 text-sm hover:bg-gray-100 transition"
+            >
               {{ $index + 1 }}
             </button>
           }
         </div>
       }
-
     }
-
   }
-
 </div>
