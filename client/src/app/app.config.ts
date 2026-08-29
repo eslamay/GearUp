@@ -8,6 +8,7 @@ import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { firstValueFrom } from 'rxjs';
 import { AccountService } from './features/account/account.service';
 import { CartService } from './features/cart/cart.service';
+import { SignalRService } from './core/services/signalr.service';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -17,10 +18,16 @@ export const appConfig: ApplicationConfig = {
     provideAppInitializer(() => {
       const accountService = inject(AccountService);
       const cartService = inject(CartService);
+      const signalRService = inject(SignalRService);
+
       return Promise.all([
         firstValueFrom(accountService.getUserInfo()),
         firstValueFrom(cartService.getCart())
-      ]);
+      ]).then(([user]) => {
+        if (user) {
+          signalRService.startConnection();
+        }
+      });
     })
   ],
 };
