@@ -1,4 +1,9 @@
-import { ApplicationConfig, inject, provideAppInitializer, provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  inject,
+  provideAppInitializer,
+  provideZoneChangeDetection,
+} from '@angular/core';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
@@ -22,12 +27,12 @@ export const appConfig: ApplicationConfig = {
 
       return Promise.all([
         firstValueFrom(accountService.getUserInfo()),
-        firstValueFrom(cartService.getCart())
+        firstValueFrom(cartService.getCart()),
       ]).then(([user]) => {
         if (user) {
           signalRService.startConnection();
         }
       });
-    })
+    }),
   ],
 };
