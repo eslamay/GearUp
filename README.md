@@ -72,7 +72,7 @@ Unlike a typical single-vendor storefront, GearUp is built as a **marketplace**:
 ### Backend
 | Technology | Purpose |
 |---|---|
-| **ASP.NET Core 9 (.NET)** | Web API |
+| **ASP.NET Core 10 (.NET)** | Web API |
 | **Entity Framework Core** | ORM / Data access |
 | **SQL Server** | Relational database |
 | **ASP.NET Core Identity** | Authentication (cookie-based) |
@@ -156,7 +156,7 @@ GearUp/
 ## 🚀 Getting Started
 
 ### Prerequisites
-- [.NET 9 SDK](https://dotnet.microsoft.com/download)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - [Node.js](https://nodejs.org/) (LTS) & Angular CLI
 - SQL Server (LocalDB or full instance)
 - Redis (locally via Docker/Memurai, or a cloud instance)
@@ -284,3 +284,4 @@ This project was built for educational/portfolio purposes.
 ## 👤 Author
 
 Built with ❤️ as a full-stack learning project covering Clean Architecture, real payment integration, and multi-role e-commerce workflows end-to-end.
+**ESLAM AYMAN
