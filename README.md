@@ -284,4 +284,3 @@ This project was built for educational/portfolio purposes.
 ## 👤 Author
 
 Built with ❤️ as a full-stack learning project covering Clean Architecture, real payment integration, and multi-role e-commerce workflows end-to-end.
-**ESLAM AYMAN
