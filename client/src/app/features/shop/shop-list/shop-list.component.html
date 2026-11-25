@@ -5,7 +5,9 @@
 
   <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
     <!-- Sidebar -->
-    <aside class="md:col-span-1 space-y-6">
+    <aside
+      class="md:col-span-1 space-y-6 md:sticky md:top-6 md:self-start bg-white border border-gray-200 rounded-xl shadow-sm p-5"
+    >
       <!-- search -->
       <div>
         <input
@@ -45,7 +47,7 @@
                 type="checkbox"
                 [checked]="productParams.brands.includes(brand)"
                 (change)="onBrandToggle(brand, $any($event.target).checked)"
-                class="accent-accent"
+                class="w-4 h-4 shrink-0 appearance-auto border border-gray-400 rounded-sm accent-accent cursor-pointer"
               />
               {{ brand }}
             </label>
@@ -65,7 +67,7 @@
                 type="checkbox"
                 [checked]="productParams.types.includes(type)"
                 (change)="onTypeToggle(type, $any($event.target).checked)"
-                class="accent-accent"
+                class="w-4 h-4 shrink-0 appearance-auto border border-gray-400 rounded-sm accent-accent cursor-pointer"
               />
               {{ type }}
             </label>

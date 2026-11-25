@@ -1,7 +1,6 @@
 import {
   Component,
   OnInit,
-  AfterViewInit,
   ElementRef,
   ViewChild,
   inject,
@@ -39,12 +38,18 @@ Chart.register(...registerables);
   templateUrl: './admin-dashboard.component.html',
   styleUrl: './admin-dashboard.component.css',
 })
-export class AdminDashboardComponent implements OnInit, AfterViewInit {
+export class AdminDashboardComponent implements OnInit {
   private adminService = inject(AdminService);
   private router = inject(Router);
 
-  @ViewChild('salesChart') salesChartRef?: ElementRef<HTMLCanvasElement>;
+  private salesChartCanvas?: ElementRef<HTMLCanvasElement>;
   private chart: Chart | null = null;
+
+  @ViewChild('salesChart')
+  set salesChart(ref: ElementRef<HTMLCanvasElement> | undefined) {
+    this.salesChartCanvas = ref;
+    if (ref) this.renderChart();
+  }
 
   activeTab: 'products' | 'orders' = 'products';
 
@@ -90,11 +95,6 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
       });
   }
 
-  ngAfterViewInit() {
-    // wait for the view to be initialized
-    setTimeout(() => this.renderChart());
-  }
-
   onSearchChange(term: string) {
     this.searchSubject.next(term);
   }
@@ -116,11 +116,11 @@ export class AdminDashboardComponent implements OnInit, AfterViewInit {
   }
 
   renderChart() {
-    if (!this.salesChartRef || this.salesData.length === 0) return;
+    if (!this.salesChartCanvas || this.salesData.length === 0) return;
 
     if (this.chart) this.chart.destroy();
 
-    this.chart = new Chart(this.salesChartRef.nativeElement, {
+    this.chart = new Chart(this.salesChartCanvas.nativeElement, {
       type: 'line',
       data: {
         labels: this.salesData.map((d) => d.name),
